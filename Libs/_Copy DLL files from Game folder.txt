@@ -1,0 +1,8 @@
+Assembly-CSharp.dll
+Assembly-CSharp-firstpass.dll
+UnityEngine.dll
+UnityEngine.UI.dll
+UnityEngine.CoreModule.dll
+UnityEngine.IMGUIModule.dll
+UnityModManager.dll
+0Harmony.dll
