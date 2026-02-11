@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Planetbase libs
 Libs/*.dll
+
+# Zip outputs
+Outputs/
