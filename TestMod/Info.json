@@ -1,0 +1,12 @@
+{
+  "Id": "TestMod",
+  "DisplayName": "Test Mod",
+  "Author": "ElephantBon",
+  "Version": "1.0.0",
+  "ManagerVersion": "0.32.4a",
+  "GameVersion": "1.4.2",
+  "Requirements": [],
+  "LoadAfter": [],
+  "AssemblyName": "TestMod.dll",
+  "EntryMethod": "TestMod.Main.Load"
+}

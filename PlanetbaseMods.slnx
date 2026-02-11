@@ -1,1 +1,4 @@
-<Solution />
+<Solution>
+  <Project Path="PlanetbaseModUtilities/PlanetbaseModUtilities.shproj" Id="2a2596f6-59d3-4f92-a33b-6e9bb2372bee" />
+  <Project Path="TestMod/TestMod.csproj" Id="e9067840-c6d8-4a33-88d3-6cadc9e5b00a" />
+</Solution>

@@ -6,3 +6,7 @@ UnityEngine.CoreModule.dll
 UnityEngine.IMGUIModule.dll
 UnityModManager.dll
 0Harmony.dll
+
+For custom textures or predefined assets:
+UnityEngine.AssetBundleModule.dll
+UnityEngine.ImageConversionModule.dll
