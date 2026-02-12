@@ -45,6 +45,7 @@
     <Compile Include="Objects\UraniumOre.cs" />
     <Compile Include="Objects\ModuleTypeNuclearPlant.cs" />
     <Compile Include="Patches\MerchantShip\addResourceProductsPatch.cs" />
+    <Compile Include="Patches\Construction\onBuiltPatch.cs" />
     <Compile Include="Patches\Tech\acquirePatch.cs" />
     <Compile Include="Patches\ConstructionComponent\recyclePatch.cs" />
     <Compile Include="Patches\ConstructionComponent\updateAnimationPatch.cs" />
@@ -61,6 +62,9 @@
     <Compile Include="Techs\TechNuclearPlant.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\nuclearplant.assetbundle">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Info.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -85,6 +89,7 @@
     <Content Include="Assets\icon_uranium_processor.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Screenshots\NuclearPlant.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -148,6 +153,9 @@
       <HintPath>..\Libs\UnityModManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Patches\ModuleType\" />
   </ItemGroup>
   <Import Project="..\PlanetbaseModUtilities\PlanetbaseModUtilities.projitems" Label="Shared" />
   <Import Project="..\AssetUtility\AssetUtility.projitems" Label="Shared" />

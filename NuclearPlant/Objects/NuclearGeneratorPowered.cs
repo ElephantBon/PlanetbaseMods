@@ -6,8 +6,8 @@ namespace NuclearPlant.Objects
     {
         public NuclearGeneratorPowered()
         {
-            mPowerGeneration = 240000;
-            mWaterGeneration = -3000;
+            mPowerGeneration = 480000;
+            mWaterGeneration = -6000;
         }
 
         public static new void RegisterString()

@@ -32,7 +32,7 @@ namespace NuclearPlant.Objects
             };
 
             mIcon = ContentManager.IconNuclearPlant;
-            mModels[1] = ResourceUtil.loadPrefab("Prefabs/Modules/PrefabOxygenGenerator2");
+            mModels[1] = ResourceUtil.loadPrefab("Prefabs/Modules/PrefabFactory2");//ResourceUtil.loadPrefab("Prefabs/Modules/PrefabOxygenGenerator2");
             mModels[1].setColor(Color.red);
             mName = Name;
 
