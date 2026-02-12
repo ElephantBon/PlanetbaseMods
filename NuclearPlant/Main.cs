@@ -9,21 +9,6 @@ using System.Collections.Generic;
 
 namespace NuclearPlant
 {
-    public class Settings : UnityModManager.ModSettings, IDrawable
-    {
-        [Draw("Uranium ore requires technology")] public bool uraniumOreRequiresTech = false;
-        [Draw("Enable hotkey")] public bool enableDebugHotkey = true;
-
-
-        public override void Save(UnityModManager.ModEntry modEntry)
-        {
-            Save(this, modEntry);
-        }
-
-        void IDrawable.OnChange()
-        {
-        }
-    }
 
     public class Main : ModBase
     {
@@ -150,7 +135,7 @@ namespace NuclearPlant
                 }
             }
 
-            if(settings.enableDebugHotkey && Input.GetKeyUp(KeyCode.N)) {
+            if(settings.enableDebugHotkey && Input.GetKeyUp(settings.KeyWorshipAtom)) {
                 var plants = BuildableUtils.GetAllModules().Where(x => x.getModuleType() is ModuleTypeNuclearPlant).ToArray();
                 bool somethingExploded = false;
                 foreach(var plant in plants) {

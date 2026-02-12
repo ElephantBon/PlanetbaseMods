@@ -57,6 +57,7 @@
     <Compile Include="Patches\Resource\postInitPatch.cs" />
     <Compile Include="Patches\Resource\setModelPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Techs\TechNuclearPlant.cs" />
   </ItemGroup>
   <ItemGroup>
