@@ -67,11 +67,14 @@ namespace PlanetbaseModUtilities
 
         public static ModBase Instance { get; private set; }
 
+        public static ModEntry ModEntry { get; private set; }
+
 
         public static void InitializeMod(ModBase mod, ModEntry modEntry)
         {
             Instance = mod;
 
+            ModEntry = modEntry;
             modEntry.OnUpdate = mod.OnUpdate;
             modEntry.OnToggle = mod.OnToggle;
             GameManagerPatch.OnGameStateChanged = mod.OnGameStateChanged;
