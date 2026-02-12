@@ -24,9 +24,9 @@ namespace NuclearPlant.Objects
 #else
             mConstructionCosts.add(TypeList<ResourceType, ResourceTypeList>.find<Metal>(), 2);
             mConstructionCosts.add(TypeList<ResourceType, ResourceTypeList>.find<Semiconductors>(), 1);
-            mResourceConsumption.Add(TypeList<ResourceType, ResourceTypeList>.find<Spares>());
-            mResourceConsumption.Add(TypeList<ResourceType, ResourceTypeList>.find<Spares>());
-            mResourceConsumption.Add(TypeList<ResourceType, ResourceTypeList>.find<Spares>());
+            mResourceConsumption.Add(TypeList<ResourceType, ResourceTypeList>.find<UraniumOre>());
+            mResourceConsumption.Add(TypeList<ResourceType, ResourceTypeList>.find<UraniumOre>());
+            mResourceConsumption.Add(TypeList<ResourceType, ResourceTypeList>.find<UraniumOre>());
             mResourceProductionPeriod = 360f;
 #endif
 
