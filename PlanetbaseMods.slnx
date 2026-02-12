@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="AutoTrader/AutoTrader.csproj" Id="23e9a211-26a1-4d49-be77-26119a40c275" />
   <Project Path="PlanetbaseModUtilities/PlanetbaseModUtilities.shproj" Id="2a2596f6-59d3-4f92-a33b-6e9bb2372bee" />
+  <Project Path="RecycleHuman/RecycleHuman.csproj" Id="5dcbc29f-6bbb-4fc3-990c-23b6007f057b" />
   <Project Path="TestMod/TestMod.csproj" Id="e9067840-c6d8-4a33-88d3-6cadc9e5b00a" />
 </Solution>
