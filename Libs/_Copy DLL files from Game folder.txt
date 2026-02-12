@@ -22,3 +22,6 @@ UnityEngine.TerrainModule.dll
 
 For RaycastHit:
 UnityEngine.PhysicsModule.dll
+
+For Animation:
+UnityEngine.AnimationModule.dll
