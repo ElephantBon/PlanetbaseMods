@@ -1,0 +1,12 @@
+{
+  "Id": "GeniusEngineers",
+  "DisplayName": "Genius Engineers",
+  "Author": "ElephantBon",
+  "Version": "1.0.1",
+  "ManagerVersion": "0.32.4a",
+  "GameVersion": "1.4.2",
+  "Requirements": [],
+  "LoadAfter": [],
+  "AssemblyName": "GeniusEngineers.dll",
+  "EntryMethod": "GeniusEngineers.Main.Init"
+}
