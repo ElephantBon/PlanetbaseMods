@@ -13,9 +13,6 @@ namespace NuclearPlant
     public class Main : ModBase
     {
         public static Settings settings;
-        public static System.Random random = new System.Random();
-        public const double ProbabilityUraniumOre = 0.005;
-        public const float ProbabilityDropsExplosion = 0.3f;
 
         // Parameters
         private const float craterDecayTime = 50.0f;
@@ -172,12 +169,12 @@ namespace NuclearPlant
 
             foreach(ResourceAmount item in resourceAmounts) {
                 for(int i = 0; i < item.getAmount(); i++) {
-                    if(Main.random.Next(0, 100) < Main.ProbabilityDropsExplosion * 100) {
+                    if(Random.Range(0.0f, 1.0f) < Main.settings.ProbabilityDropsExplosion) {
                         Resource resource = Resource.create(item.getResourceType(), construction.getPosition() + MathUtil.randFlatVector(construction.getRadius()), Location.Exterior);
                         resource.drop(Resource.State.Idle);
 
                         var mConditionIndicator = CoreUtils.GetMember<Resource, Indicator>("mConditionIndicator", resource);
-                        mConditionIndicator.decrease(Main.random.Next(0, 80) / 100.0f);
+                        mConditionIndicator.decrease(Random.Range(0, 80) / 100.0f);
                     }
                 }
             }
@@ -204,11 +201,11 @@ namespace NuclearPlant
 
                 for(int i = resources.Count - 1; i >= 0; i--) {
                     var resource = resources[i];
-                    if(Main.random.Next(0, 100) >= Main.ProbabilityDropsExplosion * 100)
+                    if(Random.Range(0.0f, 1.0f) >= Main.settings.ProbabilityDropsExplosion)
                         resource.destroy();
                     else {
                         var mConditionIndicator = CoreUtils.GetMember<Resource, Indicator>("mConditionIndicator", resource);
-                        mConditionIndicator.decrease(Main.random.Next(0, 80) / 100.0f);
+                        mConditionIndicator.decrease(Random.Range(0, 80) / 100.0f);
                     }
                 }
             }

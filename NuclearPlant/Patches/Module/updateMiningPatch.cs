@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace NuclearPlant.Patches
 {
+    /// <summary>
+    /// Produce Uranium Ore in Mine
+    /// </summary>
     [HarmonyPatch(typeof(Module), "updateMining")]
     public class updateMiningPatch
     {
@@ -38,7 +41,7 @@ namespace NuclearPlant.Patches
                     else {
                         canMineUraniumOre = true;
                     }
-                    var resourceIType = (canMineUraniumOre && Main.random.NextDouble() <= Main.ProbabilityUraniumOre ?
+                    var resourceIType = (canMineUraniumOre && Random.Range(0.0f, 1.0f) <= Main.settings.ProbabilityUraniumOre ?
                         ResourceTypeList.find<UraniumOre>() : ResourceTypeList.OreInstance);
                     Resource resource = Resource.create(resourceIType, dropPosition, Location.Exterior);
                     resource.setRotation(__instance.getTransform().rotation);

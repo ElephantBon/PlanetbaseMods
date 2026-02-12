@@ -10,11 +10,18 @@ using UnityEngine;
 
 namespace NuclearPlant.Patches
 {
+    /// <summary>
+    /// Display power generation and water consumption based on current functional Nuclear Reactors
+    /// </summary>
     [HarmonyPatch(typeof(Construction), nameof(Construction.updatePowerDescription))]
     internal class updatePowerDescriptionPatch
     {
         public static bool Prefix(Construction __instance)
         {
+            // Only apply to Nuclear Plants
+            if(!(__instance is Module module && module.getModuleType() is ModuleTypeNuclearPlant))
+                return true;
+
             var mPowerDescriptionItem = CoreUtils.GetMember<Construction, DescriptionItem>("mPowerDescriptionItem", __instance);
             if(mPowerDescriptionItem != null) {
                 int powerGeneration = __instance.getPowerGeneration();

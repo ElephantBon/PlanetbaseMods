@@ -1,6 +1,5 @@
 ﻿using Planetbase;
 using PlanetbaseModUtilities;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -81,7 +80,7 @@ namespace NuclearPlant.Objects
                         // Damage poeple
                         foreach(var character in mCharacters) {
                             if(character.getCurrentConstruction() == construction) {
-                                var damage = distToConstruction / radius3 + Main.random.Next(0, 25) / 100.0f;
+                                var damage = distToConstruction / radius3 + Random.Range(0, 25) / 100.0f;
                                 character.decayIndicator(CharacterIndicator.Health, damage);
                                 character.decayIndicator(CharacterIndicator.Condition, damage);
 
@@ -122,7 +121,7 @@ namespace NuclearPlant.Objects
                         // Register destroying components
                         var components = construction.getComponents();
                         foreach(var component in components)
-                            if(Main.random.Next(0, 100) >= Main.ProbabilityDropsExplosion * 100)
+                            if(Random.Range(0.0f, 1.0f) >= Main.settings.ProbabilityDropsExplosion)
                                 destroyComponents.Add(component);
                     }
                 }
@@ -139,7 +138,7 @@ namespace NuclearPlant.Objects
                         int num = 0;
                         foreach(ResourceAmount item in resourceAmounts) {
                             for(int i = 0; i < item.getAmount(); i++) {
-                                if(Main.random.Next(0, 100) < Main.ProbabilityDropsExplosion * 100) {
+                                if(Random.Range(0.0f, 1.0f) < Main.settings.ProbabilityDropsExplosion) {
                                     Vector3 vector = new Vector3((float)(num % 2) - 0.5f, 0f, (float)(num / 2 % 2) - 0.5f);
                                     Resource resource = Resource.create(item.getResourceType(), component.getPosition() + vector, Location.Interior);
                                     resource.setRotation(component.getTransform().rotation);
@@ -147,7 +146,7 @@ namespace NuclearPlant.Objects
                                     num++;
 
                                     var mConditionIndicator = CoreUtils.GetMember<Resource, Indicator>("mConditionIndicator", resource);
-                                    mConditionIndicator.decrease(Main.random.Next(0, 80) / 100.0f);
+                                    mConditionIndicator.decrease(Random.Range(0, 80) / 100.0f);
                                 }
                             }
                         }

@@ -13,6 +13,9 @@ namespace NuclearPlant
         [Draw("Uranium ore requires technology")] public bool uraniumOreRequiresTech = false;
         [Draw("Enable hotkey")] public bool enableDebugHotkey = true;
         [Draw("Keybind to worship Atom")] public KeyCode KeyWorshipAtom = KeyCode.N; // Acquire the technology if not acquired. Detonate Nuclear Plant if technology is already acquired
+        [Draw("Probability of uranium ore produced in mine")] public float ProbabilityUraniumOre = 0.01f;
+        [Draw("Probability of resources survive in nuclear explosion")] public float ProbabilityDropsExplosion = 0.3f;
+
 
         public override void Save(UnityModManager.ModEntry modEntry)
         {
@@ -22,5 +25,6 @@ namespace NuclearPlant
         void IDrawable.OnChange()
         {
         }
+
     }
 }
