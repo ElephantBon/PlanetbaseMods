@@ -28,10 +28,24 @@ namespace AssetUtility
             return tex;
         }
 
+        /// <summary>
+        /// To be deprecated
+        /// </summary>
         public static Texture2D LoadTextureColored(string path)
         {
             return Util.applyColor(LoadTexture(path));
         }
+
+        public static Texture2D LoadTextureColorDefault(string path)
+        {
+            return Util.applyColor(LoadTexture(path));
+        }
+
+        public static Texture2D LoadTextureColor(string path, Color color)
+        {
+            return Util.applyColor(LoadTexture(path), color);
+        }
+
     }
 }
 
