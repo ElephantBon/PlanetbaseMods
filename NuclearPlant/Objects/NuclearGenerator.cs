@@ -9,7 +9,7 @@ namespace NuclearPlant.Objects
 {
     public class NuclearGenerator : ComponentType
     {
-        public const string Name = "Generator";
+        public const string Name = "Nuclear Reactor";
 
         public NuclearGenerator()
         {
