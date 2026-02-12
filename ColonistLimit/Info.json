@@ -1,0 +1,12 @@
+{
+  "Id": "ColonistLimit",
+  "DisplayName": "Colonist Limit",
+  "Author": "ElephantBon",
+  "Version": "1.0.2",
+  "ManagerVersion": "0.32.4a",
+  "GameVersion": "1.4.2",
+  "Requirements": [],
+  "LoadAfter": [],
+  "AssemblyName": "ColonistLimit.dll",
+  "EntryMethod": "ColonistLimit.Main.Init"
+}
