@@ -13,3 +13,6 @@ UnityEngine.ImageConversionModule.dll
 
 For type FontStyle:
 UnityEngine.TextRenderingModule.dll
+
+For class Input:
+UnityEngine.InputLegacyModule.dll

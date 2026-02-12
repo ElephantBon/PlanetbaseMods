@@ -3,6 +3,7 @@
   <Project Path="ColonistLimit/ColonistLimit.csproj" Id="fa7d212f-5616-4a78-b5c5-174066229877" />
   <Project Path="DecentChart/DecentChart.csproj" Id="1056bbbd-dd0b-4bda-8f2b-d9cddec12e84" />
   <Project Path="GeniusEngineers/GeniusEngineers.csproj" Id="8ab53604-d501-450b-8cf1-ea2fd7309b5c" />
+  <Project Path="MoreHotkeys/MoreHotkeys.csproj" Id="ddf29596-af63-4293-95d0-1b49aaa9c057" />
   <Project Path="PlanetbaseModUtilities/PlanetbaseModUtilities.shproj" Id="2a2596f6-59d3-4f92-a33b-6e9bb2372bee" />
   <Project Path="RecycleHuman/RecycleHuman.csproj" Id="5dcbc29f-6bbb-4fc3-990c-23b6007f057b" />
   <Project Path="TestMod/TestMod.csproj" Id="e9067840-c6d8-4a33-88d3-6cadc9e5b00a" />
