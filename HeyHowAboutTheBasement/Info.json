@@ -1,0 +1,12 @@
+{
+  "Id": "HeyHowAboutTheBasement",
+  "DisplayName": "Hey How About The Basement",
+  "Author": "ElephantBon",
+  "Version": "0.7.3",
+  "ManagerVersion": "0.32.4a",
+  "GameVersion": "1.4.2",
+  "Requirements": [],
+  "LoadAfter": [],
+  "AssemblyName": "HeyHowAboutTheBasement.dll",
+  "EntryMethod": "HeyHowAboutTheBasement.Main.Init"
+}

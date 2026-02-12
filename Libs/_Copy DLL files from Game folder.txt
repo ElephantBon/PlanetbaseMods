@@ -16,3 +16,9 @@ UnityEngine.TextRenderingModule.dll
 
 For class Input:
 UnityEngine.InputLegacyModule.dll
+
+For terrain modification:
+UnityEngine.TerrainModule.dll
+
+For RaycastHit:
+UnityEngine.PhysicsModule.dll
