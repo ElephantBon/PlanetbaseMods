@@ -10,3 +10,6 @@ UnityModManager.dll
 For custom textures or predefined assets:
 UnityEngine.AssetBundleModule.dll
 UnityEngine.ImageConversionModule.dll
+
+For type FontStyle:
+UnityEngine.TextRenderingModule.dll
