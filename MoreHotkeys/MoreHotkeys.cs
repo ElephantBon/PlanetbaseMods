@@ -80,7 +80,7 @@ namespace MoreHotkeys
             }
             else
             if(Input.GetKeyUp(settings.KeyEditComponent)) {
-                var gameState = GameStateUtils.GetGameStateGame();
+                var gameState = GameStateUtils.GetGameStateGameUpdating();
                 if(gameState != null) { 
                     var selected = Selection.getSelected();
                     if(selected.isEditable())
