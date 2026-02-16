@@ -2,11 +2,11 @@
   "Id": "MoreHotkeys",
   "DisplayName": "More Hotkeys",
   "Author": "ElephantBon",
-  "Version": "1.1.1",
+  "Version": "1.2.0",
   "ManagerVersion": "0.32.4a",
   "GameVersion": "1.4.2",
   "Requirements": [],
   "LoadAfter": [],
   "AssemblyName": "MoreHotkeys.dll",
-  "EntryMethod": "MoreHotkeys.Main.Init"
+  "EntryMethod": "MoreHotkeys.MoreHotkeys.Init"
 }
