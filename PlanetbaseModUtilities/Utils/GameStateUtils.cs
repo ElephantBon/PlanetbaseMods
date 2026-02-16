@@ -81,5 +81,14 @@ namespace PlanetbaseModUtilities
         }
 
         #endregion
+
+        public static GameStateGame GetGameStateGame()
+        {
+            var gameManager = GameManager.getInstance();
+            if(gameManager != null)
+                if(gameManager.getGameState() is GameStateGame gameState)
+                    return gameState;
+            return null;
+        }
     }
 }

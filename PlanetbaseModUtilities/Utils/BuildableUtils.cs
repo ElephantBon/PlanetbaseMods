@@ -98,5 +98,18 @@ namespace PlanetbaseModUtilities
         }
 
         #endregion
+
+        public static bool IsDeletable(Construction construction)
+        {
+            var result = false;
+            construction.isDeleteable(out result);
+            return result;
+        }
+        public static bool IsDeletable(ConstructionComponent component)
+        {
+            var result = false;
+            component.isDeleteable(out result);
+            return result;
+        }
     }
 }
