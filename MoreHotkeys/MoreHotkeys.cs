@@ -65,7 +65,7 @@ namespace MoreHotkeys
 
                     if(Input.GetKey(KeyCode.LeftShift)) 
                         BuildableUtils.GetAllModules().ForEach(m => {
-                            if(m.getModuleType().Equals(module.getModuleType()) && m.canBeDisabled())
+                            if(m.getModuleType() == module.getModuleType() && m.canBeDisabled())
                                 m.setEnabled(!isEnabled);
                             });
                     else
@@ -89,33 +89,73 @@ namespace MoreHotkeys
             }
             else
             if(settings.EnableCheat && Input.GetKeyUp(settings.KeyInstantBuild)) {                
-                if(Input.GetKey(KeyCode.LeftShift)) {
-                    // Build all constructions, modules and components with or without selection
-                    var selected = Selection.getSelected();
-                    BuildableUtils.GetAllConstructions().ForEach(m => {
-                        if(!m.isBuilt() && (selected == null || (selected is Module m1 && m is Module m2 && m1.getModuleType().Equals(m2.getModuleType())) || m is Connection)) 
-                            m.onBuilt();
-                    });
-                    BuildableUtils.GetAllComponents().ForEach(c => {
-                        if(!c.isBuilt() && (selected == null || (selected is ConstructionComponent component && component.getComponentType().Equals(c.getComponentType()))))
-                            c.onBuilt();
-                    });
+                var selected = Selection.getSelectedBuildable();
+                if(selected == null) {
+                    if(Input.GetKey(KeyCode.LeftShift)) { 
+                        // Build all constructions, modules and components
+                        BuildableUtils.GetAllConstructions().ForEach(c => {
+                            if(!c.isBuilt())
+                                c.onBuilt();
+                        });
+                        BuildableUtils.GetAllComponents().ForEach(c => {
+                            if(!c.isBuilt())
+                                c.onBuilt();
+                        });
+                    }
                 }
                 else {
-                    // Build selected construction, module or component
-                    var construction = Selection.getSelectedConstruction();
-                    if(construction != null) {
-                        if(!construction.isBuilt()) 
-                            construction.onBuilt();
-                        return;
-                    }                    
-
-                    var component = Selection.getSelectedBuildable() as ConstructionComponent;
-                    if(component != null) {
-                        if(!component.isBuilt())
-                            component.onBuilt();
-                        return;
+                    if(Input.GetKey(KeyCode.LeftShift)) {
+                        // Build or finish progress of all same type of the selected
+                        if(selected is Module m1)
+                            BuildableUtils.GetAllConstructions().ForEach(c => {
+                                if(c is Module m2 && m1.getModuleType() == m2.getModuleType()) { 
+                                    if(!c.isBuilt())
+                                        c.onBuilt();
+                                    var indicator = c.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress);
+                                    if(indicator != null)
+                                        indicator.increase(1000000);                                                    
+                                }
+                            });
+                        else
+                        if(selected is ConstructionComponent c1) 
+                            BuildableUtils.GetAllComponents().ForEach(c => {
+                                if(c is ConstructionComponent c2 && c1.getComponentType() == c2.getComponentType()) { 
+                                    if(!c.isBuilt())
+                                        c.onBuilt();
+                                    var indicator = c.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress);
+                                    if(indicator != null)
+                                        indicator.increase(1000000);                                                    
+                                }
+                            });
                     }
+                    else {
+                        // Build or finish progress of the selected
+                        if(!selected.isBuilt())
+                            selected.onBuilt();
+                        var indicator = selected.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress);
+                        if(indicator != null)
+                            indicator.increase(1000000);
+                    }
+                }
+            }
+            else
+            if(settings.EnableDebug && Input.GetKeyUp(settings.KeyDamage)) {
+                var selected = Selection.getSelected();
+                if(selected == null) {
+                    // Destroy all resources on ground
+                    CoreUtils.GetMember<Resource, List<Resource>>("mResources").ToList().ForEach(r => {
+                        if(r.isDeleteable(out bool deletable) && deletable) { 
+                            var indicator = r.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Condition);
+                            if(indicator != null && indicator.getValue() < 100)
+                                r.destroy();
+                        }
+                    });
+                } 
+                else {
+                    // Damage selected construction or component
+                    var indicator = selected.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Condition);
+                    if(indicator != null)
+                        indicator.decrease(1000000);
                 }
             }
         }
