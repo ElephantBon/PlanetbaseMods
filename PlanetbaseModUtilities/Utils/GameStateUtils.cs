@@ -82,13 +82,16 @@ namespace PlanetbaseModUtilities
 
         #endregion
 
-        public static GameStateGame GetGameStateGame()
-        {
-            var gameManager = GameManager.getInstance();
-            if(gameManager != null)
-                if(gameManager.getGameState() is GameStateGame gameState)
-                    return gameState;
-            return null;
+        /// <summary>
+        /// Get GameStateGame only if the GameManager is currently in the Updating state. Usually used in OnUpdate hooks.
+        /// </summary>
+        public static GameStateGame GetGameStateGameUpdating()
+        {            
+            if(GameManager.getInstance().getGameState() is GameStateGame gameState 
+            && CoreUtils.GetMember<GameManager, GameManager.State>("mState", GameManager.getInstance()) == GameManager.State.Updating)
+                return gameState;
+            else
+                return null;
         }
     }
 }
