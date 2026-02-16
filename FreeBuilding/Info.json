@@ -1,0 +1,12 @@
+{
+  "Id": "FreeBuilding",
+  "DisplayName": "Free Building",
+  "Author": "João Farias",
+  "Version": "1.1.0",
+  "ManagerVersion": "0.32.4a",
+  "GameVersion": "1.4.2",
+  "Requirements": [],
+  "LoadAfter": [],
+  "AssemblyName": "FreeBuilding.dll",
+  "EntryMethod": "FreeBuilding.FreeBuilding.Init"
+}
