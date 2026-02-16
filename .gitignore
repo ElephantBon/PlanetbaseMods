@@ -366,4 +366,4 @@ FodyWeavers.xsd
 Libs/*.dll
 
 # Zip outputs
-Outputs/
+Outputs/*zip

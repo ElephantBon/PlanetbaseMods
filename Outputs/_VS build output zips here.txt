@@ -1,0 +1,1 @@
+See Build Events in properties of each project
