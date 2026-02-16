@@ -7,7 +7,7 @@ using HeyHowAboutTheBasement.DTOs;
 
 namespace HeyHowAboutTheBasement
 {
-    public class Main : ModBase
+    public class HeyHowAboutTheBasement : ModBase
     {
         public static Settings settings;
 
@@ -31,7 +31,7 @@ namespace HeyHowAboutTheBasement
             settings = Settings.Load<Settings>(modEntry);
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
-            InitializeMod(new Main(), modEntry);
+            InitializeMod(new HeyHowAboutTheBasement(), modEntry);
         }
 
         public override void OnInitialized(ModEntry modEntry)
@@ -42,11 +42,29 @@ namespace HeyHowAboutTheBasement
             ModuleTypeMovingWalkwayController.RegisterString();
             ModuleTypeTunnelConstruction.RegisterString();
             ModuleTypeTunnelEntrance.RegisterString();
+            StashMetal.RegisterString();
+            StashBioplastic.RegisterString();
+            StashSpares.RegisterString();
+            StashMedicinalPlants.RegisterString();
+            StashSemiconductors.RegisterString();
 
             // Register new objects
             ModuleTypeList.getInstance().AddType(new ModuleTypeMovingWalkwayController());
             ModuleTypeList.getInstance().AddType(new ModuleTypeTunnelConstruction());
             ModuleTypeList.getInstance().AddType(new ModuleTypeTunnelEntrance());
+            ComponentTypeList.getInstance().AddType(new StashMetal());
+            ComponentTypeList.getInstance().AddType(new StashBioplastic());
+            ComponentTypeList.getInstance().AddType(new StashSpares());
+            ComponentTypeList.getInstance().AddType(new StashMedicinalPlants());
+            ComponentTypeList.getInstance().AddType(new StashSemiconductors());
+
+            // Add new components to Lab
+            var components = ModuleTypeList.find<ModuleTypeLab>().GetComponentTypes();
+            components.Add(TypeList<ComponentType, ComponentTypeList>.find<StashMetal>());
+            components.Add(TypeList<ComponentType, ComponentTypeList>.find<StashBioplastic>());
+            components.Add(TypeList<ComponentType, ComponentTypeList>.find<StashSpares>());
+            components.Add(TypeList<ComponentType, ComponentTypeList>.find<StashMedicinalPlants>());
+            ModuleTypeList.find<ModuleTypeLab>().SetComponentTypes(components);
         }
         public override void OnGameStart(GameStateGame gameStateGame)
         {

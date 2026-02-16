@@ -16,7 +16,7 @@ namespace HeyHowAboutTheBasement.Patches
         {
             if(module1.getModuleType() is ModuleTypeTunnelEntrance
             && module2.getModuleType() is ModuleTypeTunnelEntrance) 
-                Main.creatingConnectionTunnelEntrance = true;
+                HeyHowAboutTheBasement.creatingConnectionTunnelEntrance = true;
 
             return true;
         }
@@ -25,7 +25,7 @@ namespace HeyHowAboutTheBasement.Patches
         {
             if(module1.getModuleType() is ModuleTypeTunnelEntrance
             && module2.getModuleType() is ModuleTypeTunnelEntrance)
-                Main.creatingConnectionTunnelEntrance = false;
+                HeyHowAboutTheBasement.creatingConnectionTunnelEntrance = false;
         }
     }
 
@@ -96,7 +96,7 @@ namespace HeyHowAboutTheBasement.Patches
             }
 
             float[,] heights = terrainData.GetHeights(num4, num5, num9, num10);
-            Main.terrainHeightDatas.Add(new TerrainHeightData(module1, module2, terrainData, num4, num5, heights));
+            HeyHowAboutTheBasement.terrainHeightDatas.Add(new TerrainHeightData(module1, module2, terrainData, num4, num5, heights));
         }
 
     }

@@ -22,9 +22,9 @@ namespace HeyHowAboutTheBasement.Patches
                     .FirstOrDefault();
 
                 if(entrance != null) {
-                    var entrance2 = Main.ReplaceTunnelConstructionWithEntrance(__instance);
+                    var entrance2 = HeyHowAboutTheBasement.ReplaceTunnelConstructionWithEntrance(__instance);
                     Connection.create(entrance2, entrance).onBuilt();
-                    Main.deletingModules.Add(__instance); // destroy later to avoid exception
+                    HeyHowAboutTheBasement.deletingModules.Add(__instance); // destroy later to avoid exception
                 }
             }
             else

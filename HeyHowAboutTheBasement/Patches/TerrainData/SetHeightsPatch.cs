@@ -8,7 +8,7 @@ namespace HeyHowAboutTheBasement.Patches
     {
         public static bool Prefix()
         {
-            if(Main.creatingConnectionTunnelEntrance)
+            if(HeyHowAboutTheBasement.creatingConnectionTunnelEntrance)
                 return false;
             else
                 return true;

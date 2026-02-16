@@ -42,9 +42,9 @@ namespace HeyHowAboutTheBasement.Patches
 
             Character character = mInteractions[0].getCharacter();
             float num = 0.5f + (float)__instance.getInteractionCount() * 0.5f;
-            if(mProductionProgressIndicator.increase(timeStep * character.getWorkSpeed() * num / 150f / Main.processTimeFactorTunnelConstruction)) {
+            if(mProductionProgressIndicator.increase(timeStep * character.getWorkSpeed() * num / 150f / HeyHowAboutTheBasement.processTimeFactorTunnelConstruction)) {
                 // Remove tunnel construction site
-                Main.replaceTunnelConstructions.Add(__instance);
+                HeyHowAboutTheBasement.replaceTunnelConstructions.Add(__instance);
             }
 
             return false;   // Never do vanilla mechanism of mine

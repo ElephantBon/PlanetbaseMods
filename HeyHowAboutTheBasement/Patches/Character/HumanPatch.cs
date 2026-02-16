@@ -33,7 +33,7 @@ namespace HeyHowAboutTheBasement.Patches
                 }
             }
 
-            num = Main.IncreaseSpeedOnWalkway(__instance, num);
+            num = HeyHowAboutTheBasement.IncreaseSpeedOnWalkway(__instance, num);
 
             __result = num;
             return false;

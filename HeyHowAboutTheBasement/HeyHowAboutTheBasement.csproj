@@ -37,10 +37,16 @@
     <Compile Include="ContentManager.cs" />
     <Compile Include="DTOs\ConnectionLineData.cs" />
     <Compile Include="DTOs\TerrainHeightData.cs" />
-    <Compile Include="Main.cs" />
+    <Compile Include="HeyHowAboutTheBasement.cs" />
     <Compile Include="Objects\ModuleTypeMovingWalkwayController.cs" />
     <Compile Include="Objects\ModuleTypeTunnelEntrance.cs" />
     <Compile Include="Objects\ModuleTypeTunnelConstruction.cs" />
+    <Compile Include="Objects\Stash.cs" />
+    <Compile Include="Objects\StashBioplastic.cs" />
+    <Compile Include="Objects\StashMedicinalPlants.cs" />
+    <Compile Include="Objects\StashMetal.cs" />
+    <Compile Include="Objects\StashSemiconductors.cs" />
+    <Compile Include="Objects\StashSpares.cs" />
     <Compile Include="Patches\Character\BotPatch.cs" />
     <Compile Include="Patches\Character\CharacterPatch.cs" />
     <Compile Include="Patches\Character\HumanPatch.cs" />
