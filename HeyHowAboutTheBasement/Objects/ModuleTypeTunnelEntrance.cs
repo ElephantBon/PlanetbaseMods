@@ -16,7 +16,7 @@ namespace HeyHowAboutTheBasement
             mFlags = FlagNoFoundations | FlagWalkable;
 
             mName = Name;
-            mIcon = ContentManager.IconTunnel; // ResourceUtil.loadIconColor("Modules/icon_mine");
+            mIcon = ContentManager.IconTunnel;
             mModels[1] = ResourceUtil.loadPrefab("Prefabs/Modules/PrefabMine2");
 
             initStrings();

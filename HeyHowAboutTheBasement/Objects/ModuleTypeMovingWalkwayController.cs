@@ -15,15 +15,9 @@ namespace HeyHowAboutTheBasement
             mLayoutType = LayoutType.Normal;
             mFlags = 1050672;
             mRequiredStructure.set<ModuleTypeOxygenGenerator>();
-
             mCost = new ResourceAmounts();
-#if DEBUG
-            mCost.add(ResourceTypeList.MetalInstance, 1);
-#else
             mCost.add(ResourceTypeList.MetalInstance, 1);
             mCost.add(ResourceTypeList.SparesInstance, 2);
-#endif
-
             mIcon = ContentManager.IconMovingWalkway;
             mModels[0] = ResourceUtil.loadPrefab("Prefabs/Modules/PrefabLab1");
 

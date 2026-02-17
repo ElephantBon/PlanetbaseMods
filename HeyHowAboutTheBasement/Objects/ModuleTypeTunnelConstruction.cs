@@ -17,19 +17,13 @@ namespace HeyHowAboutTheBasement
             mFlags = 1048850;
             mRequiredStructure.set<ModuleTypeSolarPanel>();
             mExteriorNavRadius = Module.ValidSizes[2] * 0.5f;
-
             mCost = new ResourceAmounts();
-#if DEBUG
-            mCost.add(ResourceTypeList.MetalInstance, 1);
-#else
             mCost.add(ResourceTypeList.MetalInstance, 20);
-#endif
-
             mCondicionDecayTime = 100f;
             mRepairResource = TypeList<ResourceType, ResourceTypeList>.find<Metal>();
 
             mName = Name;
-            mIcon = ContentManager.IconTunnel; //ResourceUtil.loadIconColor("Modules/icon_mine");
+            mIcon = ContentManager.IconTunnel;
             mModels[1] = ResourceUtil.loadPrefab("Prefabs/Modules/PrefabMine2");
 
             initStrings();

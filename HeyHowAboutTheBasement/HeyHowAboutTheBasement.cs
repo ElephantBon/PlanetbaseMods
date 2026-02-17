@@ -12,13 +12,8 @@ namespace HeyHowAboutTheBasement
         public static Settings settings;
 
         // Parameters
-        public static float processTimeFactorTunnelConstruction =
-#if DEBUG
-            0.5f;
-#else
-            50.0f;
-#endif
-
+        public static float processTimeFactorTunnelConstruction = 50.0f;
+        
         // Variables
         public static bool creatingConnectionTunnelEntrance = false;
         private static bool guiTunnelEntranceRemoved = false;
@@ -146,16 +141,13 @@ namespace HeyHowAboutTheBasement
         /// <summary> Increase walk speed if the human in moving walkway </summary>
         public static float IncreaseSpeedOnWalkway(Character __instance, float speed)
         {
-            if(((Settings)settings).NoTimeToExplain)
-                return speed * 200f;
-
             var construction = __instance.getCurrentConstruction();
             if(construction != null && construction is Connection connection && connection.isEnabled()) {
                 if(connection.getModule1().getModuleType() is ModuleTypeMovingWalkwayController
                 && connection.getModule2().getModuleType() is ModuleTypeMovingWalkwayController
                 && connection.getModule1().isEnabled()
                 && connection.getModule2().isEnabled())
-                    speed *= 4f;
+                    speed *= settings.MovingWalkwaySpeedMultiplier;
             }
 
             return speed;
