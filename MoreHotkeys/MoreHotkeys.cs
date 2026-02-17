@@ -152,10 +152,17 @@ namespace MoreHotkeys
                     });
                 } 
                 else {
-                    // Damage selected construction or component
-                    var indicator = selected.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Condition);
-                    if(indicator != null)
-                        indicator.decrease(1000000);
+                    // Damage selected bot or human
+                    if(selected is Character c) {
+                        c.decayIndicator(CharacterIndicator.Health, 1f);
+                        c.decayIndicator(CharacterIndicator.Condition, 1f);
+                    }
+                    else { 
+                        // Damage selected construction or component
+                        var indicator = selected.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Condition);
+                        if(indicator != null)
+                            indicator.decrease(1000000);
+                    }
                 }
             }
         }
