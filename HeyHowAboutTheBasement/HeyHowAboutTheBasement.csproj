@@ -38,6 +38,7 @@
     <Compile Include="DTOs\ConnectionLineData.cs" />
     <Compile Include="DTOs\TerrainHeightData.cs" />
     <Compile Include="HeyHowAboutTheBasement.cs" />
+    <Compile Include="Models\WalkwayModel.cs" />
     <Compile Include="Objects\ModuleTypeMovingWalkwayController.cs" />
     <Compile Include="Objects\ModuleTypeTunnelEntrance.cs" />
     <Compile Include="Objects\ModuleTypeTunnelConstruction.cs" />
@@ -48,11 +49,12 @@
     <Compile Include="Objects\StashSemiconductors.cs" />
     <Compile Include="Objects\StashSpares.cs" />
     <Compile Include="Patches\Character\BotPatch.cs" />
-    <Compile Include="Patches\Character\CharacterPatch.cs" />
     <Compile Include="Patches\Character\HumanPatch.cs" />
+    <Compile Include="Patches\Connection\onBuiltPatch.cs" />
     <Compile Include="Patches\Connection\createPatch.cs" />
-    <Compile Include="Patches\Module\onPlacedPatch.cs" />
     <Compile Include="Patches\Module\ConstructionPatch.cs" />
+    <Compile Include="Patches\Module\destroyPatch.cs" />
+    <Compile Include="Patches\Module\onPlacedPatch.cs" />
     <Compile Include="Patches\Module\linkModulesPatch.cs" />
     <Compile Include="Patches\TerrainData\SetHeightsPatch.cs" />
     <Compile Include="Patches\Connection\canLinkPatch.cs" />
@@ -61,6 +63,9 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\heyhowaboutthebasement.assetbundle">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Info.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -130,6 +135,9 @@
       <HintPath>..\Libs\UnityModManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Patches\Construction\" />
   </ItemGroup>
   <Import Project="..\AssetUtility\AssetUtility.projitems" Label="Shared" />
   <Import Project="..\PlanetbaseModUtilities\PlanetbaseModUtilities.projitems" Label="Shared" />

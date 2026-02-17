@@ -6,6 +6,7 @@ using UnityEngine;
 using Module = Planetbase.Module;
 using PlanetbaseModUtilities;
 using System.Collections.Generic;
+using HeyHowAboutTheBasement.Models;
 
 namespace HeyHowAboutTheBasement.Patches
 {
@@ -139,7 +140,11 @@ namespace HeyHowAboutTheBasement.Patches
 
             #region Moving walkway
             if(m1.getModuleType() is ModuleTypeMovingWalkwayController && m2.getModuleType() is ModuleTypeMovingWalkwayController) {
-                // Tunnel entrance can connect each other regardless distance
+                // Check if any of the two modules is already connected to another MovingWalkwayController, if so, can't link
+                if((WalkwayModel.IsLinked(m1) || WalkwayModel.IsLinked(m2)) && !WalkwayModel.IsLinked(m1, m2)) {
+                    __result = false; 
+                    return false; 
+                }
 
                 // Check if there are any building on connection
                 float num = Mathf.Min(Mathf.Min(m1.getRadius(), m2.getRadius()), Module.ValidSizes[1] * 0.5f);
