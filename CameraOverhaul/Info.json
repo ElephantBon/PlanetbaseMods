@@ -1,0 +1,12 @@
+﻿{
+  "Id": "CameraOverhaulRehauled",
+  "DisplayName": "CameraOverhaul Rehauled",
+  "Version": "1.0.1",
+  "ManagerVersion": "0.32.4a",
+  "GameVersion": "1.4.2",
+  "Requirements": [],
+  "LoadAfter": [],
+  "AssemblyName": "CameraOverhaulRehauled.dll",
+  "EntryMethod": "CameraOverhaul.CameraOverhaul.Init"
+
+}
