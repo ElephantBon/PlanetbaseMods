@@ -52,7 +52,7 @@
     <Compile Include="Patches\Character\HumanPatch.cs" />
     <Compile Include="Patches\Connection\onBuiltPatch.cs" />
     <Compile Include="Patches\Connection\createPatch.cs" />
-    <Compile Include="Patches\Module\ConstructionPatch.cs" />
+    <Compile Include="Patches\Construction\ConstructionPatch.cs" />
     <Compile Include="Patches\Module\destroyPatch.cs" />
     <Compile Include="Patches\Module\onPlacedPatch.cs" />
     <Compile Include="Patches\Module\linkModulesPatch.cs" />
@@ -136,9 +136,7 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Patches\Construction\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="..\AssetUtility\AssetUtility.projitems" Label="Shared" />
   <Import Project="..\PlanetbaseModUtilities\PlanetbaseModUtilities.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
