@@ -15,6 +15,10 @@ namespace CameraOverhaul
     {
         public static bool Prefix(ref CameraManager __instance, float timeStep)
         {
+            var gameState = GameStateUtils.GetGameStateGameUpdating();
+            if(gameState != null && CoreUtils.GetMember<GameStateGame, int>("mMode", gameState) == 1)
+                return true; // Don't run custom code when placing a module.
+
             var cameraManager = __instance;
 
             if (cameraManager.GetZoomAxis() == 0f)
