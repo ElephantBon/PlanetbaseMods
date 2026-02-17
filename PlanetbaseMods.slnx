@@ -13,4 +13,5 @@
   <Project Path="RecycleHuman/RecycleHuman.csproj" Id="5dcbc29f-6bbb-4fc3-990c-23b6007f057b" />
   <Project Path="StorageGuru/StorageGuru.csproj" Id="f207875b-9308-4b84-861c-18aede338f29" />
   <Project Path="TestMod/TestMod.csproj" Id="e9067840-c6d8-4a33-88d3-6cadc9e5b00a" />
+  <Project Path="WhereTheDeadBodies/WhereTheDeadBodies.csproj" Id="c671aa0a-0c04-491f-8966-b6e3014e3a22" />
 </Solution>
