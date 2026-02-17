@@ -97,6 +97,11 @@ namespace PlanetbaseModUtilities
             return CoreUtils.GetMember<StorageSlot, List<Resource>>("mResources", slot);
         }
 
+        public static void SetSlots(this ResourceStorage storage, List<StorageSlot> slots)
+        {
+            CoreUtils.SetMember("mSlots", storage, slots);
+        }
+
         #endregion
 
         public static bool IsDeletable(Construction construction)
