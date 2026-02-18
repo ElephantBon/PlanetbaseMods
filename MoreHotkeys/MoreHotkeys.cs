@@ -122,9 +122,8 @@ namespace MoreHotkeys
                                 if(c is ConstructionComponent c2 && c1.getComponentType() == c2.getComponentType()) { 
                                     if(!c.isBuilt())
                                         c.onBuilt();
-                                    var indicator = c.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress);
-                                    if(indicator != null)
-                                        indicator.increase(1000000);                                                    
+                                    else 
+                                        c.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress)?.increase(1000000);
                                 }
                             });
                     }
