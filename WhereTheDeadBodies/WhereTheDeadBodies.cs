@@ -1,6 +1,5 @@
 ﻿using Planetbase;
 using PlanetbaseModUtilities;
-using System.Collections.Generic;
 using UnityEngine;
 using WhereTheDeadBodies.Objects;
 using static UnityModManagerNet.UnityModManager;
@@ -38,16 +37,16 @@ namespace WhereTheDeadBodies
 
         public override void OnUpdate(ModEntry modEntry, float timeStep)
         {
-            if(!corpseVisualApplied) {
-                var resources = CoreUtils.GetMember<Resource, Dictionary<GameObject, Resource>>("mResourceDictionary").Values;
-                if(resources != null && resources.Count > 0) {
-                    corpseVisualApplied = true;
-                    foreach(var resource in resources) {
-                        if(resource.getResourceType() is Corpse)
-                            Corpse.RandomVisual(resource);
-                    }
-                }
-            }
+            //if(!corpseVisualApplied) {
+            //    var resources = CoreUtils.GetMember<Resource, Dictionary<GameObject, Resource>>("mResourceDictionary").Values;
+            //    if(resources != null && resources.Count > 0) {
+            //        corpseVisualApplied = true;
+            //        foreach(var resource in resources) {
+            //            if(resource.getResourceType() is Corpse)
+            //                Corpse.RandomVisual(resource);
+            //        }
+            //    }
+            //}
 
             if(Input.GetKeyUp(KeyCode.C)) {
                 var selected = Selection.getSelected();

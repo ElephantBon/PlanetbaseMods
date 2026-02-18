@@ -36,10 +36,10 @@
     <Compile Include="Objects\Incinerator.cs" />
     <Compile Include="Objects\ModuleTypeMorgue.cs" />
     <Compile Include="Patches\AiRuleGoLoadResourcesToStore\updatePatch.cs" />
-    <Compile Include="Patches\Character\updateAllPatch.cs" />
-    <Compile Include="Patches\Character\updateDeadPatch.cs" />
     <Compile Include="Patches\ConstructionComponent\produceResourcePatch.cs" />
     <Compile Include="Patches\Module\findStoragePatch.cs" />
+    <Compile Include="Patches\Resource\postInitPatch.cs" />
+    <Compile Include="Patches\Selectable\recyclePatch.cs" />
     <Compile Include="Patches\Selectable\restoreModelPatch.cs" />
     <Compile Include="Patches\Selectable\useExtrudedSelectionPatch.cs" />
     <Compile Include="WhereTheDeadBodies.cs" />
@@ -58,6 +58,7 @@
       <HintPath>..\Libs\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\Libs\UnityEngine.dll</HintPath>
       <Private>False</Private>

@@ -1,42 +1,62 @@
 ﻿using Planetbase;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using static Planetbase.Human;
 using PlanetbaseModUtilities;
-using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using UnityEngine;
+using UnityEngine.UI;
+using static Planetbase.CharacterAnimation;
+using static Planetbase.Human;
 
 namespace WhereTheDeadBodies
 {
     internal class Corpse : ResourceType
     {
         public const string Name = "Corpse";
-
-        //private GameObject mObject;
-        //protected GameObject mBody;
-        //protected GameObject mExoskeleton;
-        //protected Animation mAnimation;
+        private static GameObject[] mModels;
+        private static Color[] mColors;
 
         public Corpse()
         {
-            //mObject = new GameObject();
-            mStatsColor = new Color32(255, 0, 0, byte.MaxValue);
+            mStatsColor = new Color32(255, 255, 255, byte.MaxValue);
             mValue = 10;
             mMerchantCategory = MerchantCategory.Count;
             mSize = ResourceType.LargeResourceSize;
 
             mName = Name;
-            mModel = ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleWorker");
-            //setModel(ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleWorker"));
             mIcon = Util.applyColor(ContentManager.IconCorpse, mStatsColor);
+            mModel = ResourceUtil.loadPrefab("Prefabs/Resources/PrefabMetal"); // A dummy prefab for built-in flow, and will be replaced immediately by ReplaceVisual()
 
-            BoxCollider boxCollider = mModel.AddComponent<BoxCollider>();
-            boxCollider.center = new Vector3(0f, 0.075f, 0f);
-            boxCollider.size = mSize;//new Vector3(mRadius * 2f, 0.15f, mLength);
+            mModels = new GameObject[] {
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleBiologist"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanFemaleBiologist"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleEngineer"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanFemaleEngineer"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleGuard"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanFemaleGuard"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleMedic"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanFemaleMedic"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleWorker"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanFemaleWorker"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleVisitor"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanFemaleVisitor"),
+                ResourceUtil.loadPrefab("Prefabs/Characters/PrefabAstronaut")
+            };
+            foreach(var item in mModels) {
+                BoxCollider boxCollider = item.AddComponent<BoxCollider>();
+                boxCollider.center = new Vector3(0f, 0.075f, 0f);
+                boxCollider.size = mSize * 1.5f;
+                item.findTaggedObject("CharacterExoskeleton")?.SetActive(false);
+            }
 
-            //new Bounds(getPosition() + Vector3.up * 0.5f, new Vector3(1f, 1f, 1f));
-
-            // TODO: set model for exterior, specialization and gender
+            mColors = new Color[] {
+                SpecializationList.find<Biologist>().getColor(),
+                SpecializationList.find<Engineer>().getColor(),
+                SpecializationList.find<Guard>().getColor(),
+                SpecializationList.find<Medic>().getColor(),
+                SpecializationList.find<Worker>().getColor(),
+                SpecializationList.find<Visitor>().getColor()
+            };
         }
 
         public static void RegisterString()
@@ -44,157 +64,98 @@ namespace WhereTheDeadBodies
             StringUtils.RegisterString("corpse", Name);
         }
 
-        internal static void CreateFromCharacter(Character character)
+        public static GameObject GetPrefab(Human human)
         {
-            if(!(character is Human)) 
-                return;            
+            var index = 0;
 
-            // Duplicate game object, but skin will become purple after the origin gone. T pose of corpse that outside current view
-            var oldObject = character.getGameObject();
+            if(human.getLocation() == Location.Exterior) {
+                index = mModels.Length - 1;
+            }
+            else { 
+                var specialization = human.getSpecialization();
+                if(specialization is Biologist)
+                    index = 0;
+                else
+                if(specialization is Engineer)
+                    index = 1;
+                else
+                if(specialization is Guard)
+                    index = 2;
+                else
+                if(specialization is Medic)
+                    index = 3;
+                else
+                if(specialization is Worker)
+                    index = 4;
+                else
+                    index = 5; // Visitor, intruder or others
 
-            var location = character.getLocation();
+                var mGender = CoreUtils.GetMember<Human, Gender>("mGender", human);
+                index = index * 2 + (mGender == Gender.Female ? 1 : 0);
+                //WhereTheDeadBodies.ModEntry.Logger.Log($"GetPrefab index={index}, gender={mGender.ToString()}, specialization={human.getSpecialization().ToString()}");
+            }
 
-            var resource = Resource.create(TypeList<ResourceType, ResourceTypeList>.find<Corpse>(), oldObject.transform.position, location);
-            resource.drop(Resource.State.Idle);
-
-            //var newObject = ResourceUtil.loadPrefab("Prefabs/Characters/PrefabHumanMaleWorker");
-            //CoreUtils.SetMember<Resource, GameObject>("mModel", resource, newObject);
-
-            var newObject = CoreUtils.GetMember<Resource, GameObject>("mModel", resource);
-            newObject.transform.rotation = oldObject.transform.rotation;
-
-            // ExoSkeleton
-            var mExoskeleton = newObject.findTaggedObject("CharacterExoskeleton");
-            mExoskeleton.SetActive(false);
-
-            // Animation
-            var characterAnimation = new CharacterAnimation(CharacterAnimationType.Die);
-            var gender = CoreUtils.GetMember<Human, Gender>("mGender", (Human)character);
-            var mAnimation = addHumanAnimations(newObject, gender, location);
-
-            var animationType = characterAnimation.getAnimationType();
-
-            var mSpecialization = character.getSpecialization();
-            var mExteriorAnimationNames = CoreUtils.GetMember<Specialization, List<string>[]>("mExteriorAnimationNames", mSpecialization);
-            var mFemaleAnimationNames = CoreUtils.GetMember<Specialization, List<string>[]>("mFemaleAnimationNames", mSpecialization);
-            var mAnimationNames = CoreUtils.GetMember<Specialization, List<string>[]>("mAnimationNames", mSpecialization);
-
-            List<string> animationNames;
-            if(location == Location.Exterior && mExteriorAnimationNames != null)
-                animationNames = mExteriorAnimationNames[(int)animationType];
-            else
-            if(gender == Human.Gender.Female && mFemaleAnimationNames != null)
-                animationNames = mFemaleAnimationNames[(int)animationType];
-            else
-                animationNames = mAnimationNames[(int)animationType];
-
-            var animationName = ((animationNames.Count != 1) ? animationNames[UnityEngine.Random.Range(0, animationNames.Count)] : animationNames[0]);
-            var mCurrentAnimationState = mAnimation[animationName];
-            mCurrentAnimationState.speed = 999;
-            mCurrentAnimationState.wrapMode = WrapMode.ClampForever;
-            mAnimation.Play(animationName);
+            return mModels[index];
         }
 
-        public static void RandomVisual(Resource resource)
+        public static void ReplaceVisual(Resource resource, GameObject prefab, bool isExterior, Color mColor)
         {
-            var location = resource.getLocation();
+            // Replace the model of resource
+            Object.Destroy(resource.getSelectionModel());
+            var mModel = Object.Instantiate(prefab);
+            mModel.name = "CorpseModel";
+            mModel.GetComponent<Rigidbody>();
+            mModel.disablePhysics();
 
-            var mModel = CoreUtils.GetMember<Resource, GameObject>("mModel", resource);
-            if(mModel == null)
-                return;
-
-            var rotation = UnityEngine.Random.rotation;
-            rotation.x = 0;
-            rotation.z = 0;
-            mModel.transform.rotation = rotation;
-
-            // ExoSkeleton
-            var mExoskeleton = mModel.findTaggedObject("CharacterExoskeleton");
-            mExoskeleton.SetActive(false);
-
-            // Animation
-            var characterAnimation = new CharacterAnimation(CharacterAnimationType.Die);
-            var gender = Gender.Male; // CoreUtils.GetMember<Human, Gender>("mGender", (Human)character);
-            var mAnimation = addHumanAnimations(mModel, gender, location);
-
-            var animationType = characterAnimation.getAnimationType();
-
-            var mSpecialization =  SpecializationList.find<Worker>(); // character.getSpecialization();
-            var mExteriorAnimationNames = CoreUtils.GetMember<Specialization, List<string>[]>("mExteriorAnimationNames", mSpecialization);
-            var mFemaleAnimationNames = CoreUtils.GetMember<Specialization, List<string>[]>("mFemaleAnimationNames", mSpecialization);
-            var mAnimationNames = CoreUtils.GetMember<Specialization, List<string>[]>("mAnimationNames", mSpecialization);
-
-            List<string> animationNames;
-            if(location == Location.Exterior && mExteriorAnimationNames != null)
-                animationNames = mExteriorAnimationNames[(int)animationType];
-            else
-            if(gender == Human.Gender.Female && mFemaleAnimationNames != null)
-                animationNames = mFemaleAnimationNames[(int)animationType];
-            else
-                animationNames = mAnimationNames[(int)animationType];
-
-            var animationName = ((animationNames.Count != 1) ? animationNames[UnityEngine.Random.Range(0, animationNames.Count)] : animationNames[0]);
-            var mCurrentAnimationState = mAnimation[animationName];
-            mCurrentAnimationState.speed = 999;
-            mCurrentAnimationState.wrapMode = WrapMode.ClampForever;
-            mAnimation.Play(animationName);
-        }
-
-        public void setModel(GameObject newModel)
-        {
-            ////if(mObject != null) 
-            //{
-            //    UnityEngine.Object.Destroy(mModel);
-            //    mModel = newModel;
-            //    //mModel.transform.SetParent(mObject.transform, worldPositionStays: false);
-            //    mModel.name = "Character Model";
-            //    mBody = mModel.findTaggedObject("CharacterBody");
-            //    if(mBody == null) {
-            //        Debug.LogWarning("Character has no body: " + getName());
-            //    }
-
-            //    mAnimation = mModel.GetComponentInChildren<Animation>();
-            //    mModel.setLayerRecursive(14);
-            //}
-
-            ////mObject.setLayerRecursive((mLocation == Location.Exterior) ? 17 : 14);
-            ////mObject.setLayerRecursive(14);
-        }
-
-        private static Animation addHumanAnimations(GameObject model, Human.Gender gender, Location location)
-        {
-            Animation animation = model.AddComponent<Animation>();
-            animation.playAutomatically = false;
-            animation.cullingType = AnimationCullingType.BasedOnRenderers;
-            AnimationClip[] animations = ResourceList.getInstance().PrefabHumanAnimations.GetComponent<AnimationList>().Animations;
-            foreach(AnimationClip animationClip in animations) {
-                if(!(animationClip != null)) {
-                    continue;
-                }
-                string name = animationClip.name;
-                if(animation[name] != null) {
-                    Debug.LogWarning("Duplicated animation: " + name);
-                }
-                bool flag = false;
-                if(location == Location.Exterior) {
-                    flag = name.StartsWith("human_astronaut") || (name.StartsWith("human_") && !name.StartsWith("human_male") && !name.StartsWith("human_female"));
-                }
-                else {
-                    switch(gender) {
-                        case Human.Gender.Male:
-                            flag = name.StartsWith("human_male") || (name.StartsWith("human_") && !name.StartsWith("human_astronaut") && !name.StartsWith("human_female"));
-                            break;
-                        case Human.Gender.Female:
-                            flag = name.StartsWith("human_female") || (name.StartsWith("human_") && !name.StartsWith("human_astronaut") && !name.StartsWith("human_male"));
-                            break;
-                    }
-                }
-                if(flag) {
-                    animation.AddClip(animationClip, animationClip.name);
+            if(isExterior) {
+                // Set color of exterior astronaut suit
+                SkinnedMeshRenderer[] componentsInChildren = mModel.GetComponentsInChildren<SkinnedMeshRenderer>();
+                for(int i = 0; i < componentsInChildren.Length; i++) {
+                    Material val2 = Object.Instantiate<Material>(((Renderer)componentsInChildren[i]).sharedMaterial);
+                    ((Renderer)componentsInChildren[i]).material = val2;
+                    val2.SetColor(ShaderProperty.EmissionColor, mColor);
                 }
             }
 
-            return animation;
+            CoreUtils.InvokeMethod<Resource>("setModel", resource, mModel);
+
+            // Set animation
+            var animationName = "human_die";
+            var animation = mModel.AddComponent<Animation>();
+            var animationClip = ResourceList.getInstance().PrefabHumanAnimations.GetComponent<AnimationList>().Animations.First(x => x.name == animationName);
+            animation.AddClip(animationClip, animationClip.name);
+            var animationState = animation[animationName];
+            animationState.speed = 999;
+            animationState.wrapMode = WrapMode.Clamp;
+            animation.Play(animationName);
+        }
+
+        public static void ReplaceVisualRandom(Resource resource)
+        {
+            var isExterior = resource.getLocation() == Location.Exterior || Random.Range(0, 5) == 0;
+            var prefab = isExterior ? mModels[mModels.Length - 1] : mModels[Random.Range(0, mModels.Length - 1)];
+            var mColor = mColors[Random.Range(0, mColors.Length)];
+            ReplaceVisual(resource, prefab, isExterior, mColor);
+        }
+
+        internal static void CreateResource(Human human)
+        {
+            // Create new resource object
+            var resource = Resource.create(TypeList<ResourceType, ResourceTypeList>.find<Corpse>(), human.getPosition(), human.getLocation());
+            var isExterior = resource.getLocation() == Location.Exterior;
+            var prefab = GetPrefab(human);
+            var mColor = human.getSpecialization().getColor();
+
+            // Copy rotation
+            resource.setRotation(human.getRotation());
+
+            ReplaceVisual(resource, prefab, isExterior, mColor);
+
+            // Drop to ground
+            resource.drop(Resource.State.Idle);
+
+            // Fix position to ground
+            resource.setPosition(new Vector3(resource.getPosition().x, 0, resource.getPosition().z));
         }
     }
 }
