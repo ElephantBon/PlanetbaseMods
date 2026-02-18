@@ -3,20 +3,35 @@ using PlanetbaseModUtilities;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityModManagerNet;
 using WhereTheDeadBodies.Objects;
-using WhereTheDeadBodies.Patches;
 using static UnityModManagerNet.UnityModManager;
 
 namespace WhereTheDeadBodies
 {
     public class WhereTheDeadBodies : ModBase
     {
-        // Variables
-        private static bool corpseVisualApplied = false;
+        public static Settings settings;
+
+        private const float infectionTimerInterval = 60f;
+        private static float infectionTimerCounter = 0;
 
         public static new void Init(ModEntry modEntry)
         {
+            settings = Settings.Load<Settings>(modEntry);
+            modEntry.OnGUI = OnGUI;
+            modEntry.OnSaveGUI = OnSaveGUI;
             InitializeMod(new WhereTheDeadBodies(), modEntry);
+        }
+
+        static void OnGUI(UnityModManager.ModEntry modEntry)
+        {
+            settings.Draw(modEntry);
+        }
+
+        static void OnSaveGUI(UnityModManager.ModEntry modEntry)
+        {
+            settings.Save(modEntry);
         }
 
         public override void OnInitialized(ModEntry modEntry)
@@ -34,43 +49,50 @@ namespace WhereTheDeadBodies
             ModuleTypeList.getInstance().AddType(new ModuleTypeMorgue());
         }
 
-        public override void OnGameStart(GameStateGame gameStateGame)
-        {
-            // Reset mod variables
-            corpseVisualApplied = false;
-        }
-
         public override void OnUpdate(ModEntry modEntry, float timeStep)
         {
-            //if(!corpseVisualApplied) {
-            //    var resources = CoreUtils.GetMember<Resource, Dictionary<GameObject, Resource>>("mResourceDictionary").Values;
-            //    if(resources != null && resources.Count > 0) {
-            //        corpseVisualApplied = true;
-            //        foreach(var resource in resources) {
-            //            if(resource.getResourceType() is Corpse)
-            //                Corpse.RandomVisual(resource);
-            //        }
-            //    }
-            //}
+            InfectionOutbreak(timeStep);
 
-            //if(Input.GetKeyUp(KeyCode.C)) {
-            //    var selected = Selection.getSelected();
-            //    if(selected != null) { 
-            //        if(selected is Character c) {
-            //            var r = Resource.create(ResourceTypeList.find<Corpse>(), c.getPosition() + MathUtil.randFlatVector(c.getRadius()), Location.Exterior);
-            //            r.drop(Resource.State.Idle);                    
-            //            c.destroy();
-            //        }
-            //    }
-            //    else {
-            //        var colonists = CoreUtils.GetMember<Character, List<Character>>("mCharacters").Where(x => x is Colonist).ToArray();
-            //        foreach(var colonist in colonists) {
-            //            colonist.decayIndicator(CharacterIndicator.Morale, -1f);
-            //        }
-            //    }
-            //}
+            if(settings.EnableDebug && Input.GetKeyUp(KeyCode.C)) {
+                infectionTimerCounter = infectionTimerInterval;
+            }
+        }
 
-            //updatePatch.StoreResourceTask.update();
+        private void InfectionOutbreak(float timeStep)
+        {
+            infectionTimerCounter += timeStep;
+            if(infectionTimerCounter < infectionTimerInterval)
+                return;
+            else
+                infectionTimerCounter = 0;
+
+            if(CoreUtils.GetMember<Character, List<Character>>("mCharacters").Any(x => x.getCondition()?.getConditionType() is ConditionFlu)) {
+                if(settings.EnableDebug)
+                    Singleton<MessageLog>.getInstance().addMessage(new Message($"Found existing infected, skip the event."));
+                return; // Skip new infection if there are already people infected, let the built-in propagation mechnism do more infection
+            }
+
+            var fluCounter = 0;
+            var flu = ConditionTypeList.find<ConditionFlu>();
+            var corpses = CoreUtils.GetMember<Resource, List<Resource>>("mResources").Where(x => x.getResourceType() is Corpse && x.getLocation() == Location.Interior && !x.isEmbedded() && x.getState() == Resource.State.Idle).ToList();
+            var healthyHumans = CoreUtils.GetMember<Character, List<Character>>("mCharacters").Where(x => x is Human human && (human.getCondition() == null || !(human.getCondition().getConditionType() is ConditionFlu))).ToList();
+            var probability = settings.ProbabilityInfection * corpses.Count;
+            if(probability > 0) {
+                foreach(var human in healthyHumans) {
+                    if(Random.Range(0.0f, 1.0f) < probability) {
+                        human.setCondition(flu);
+                        fluCounter++;
+                    }
+                }
+            }
+
+            if(settings.EnableDebug)
+                Singleton<MessageLog>.getInstance().addMessage(new Message($"corpses={corpses.Count}, heathyHumans={healthyHumans.Count}, infected={fluCounter}, probability={probability}"));
+            else
+            if(fluCounter > 0)
+                Singleton<MessageLog>.getInstance().addMessage(new Message($"An infection outbreak is occurring. {fluCounter} people are infected."));
+            
+
         }
     }
 }

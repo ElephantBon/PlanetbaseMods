@@ -45,6 +45,7 @@
     <Compile Include="Patches\Selectable\recyclePatch.cs" />
     <Compile Include="Patches\Selectable\restoreModelPatch.cs" />
     <Compile Include="Patches\Selectable\useExtrudedSelectionPatch.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="WhereTheDeadBodies.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
