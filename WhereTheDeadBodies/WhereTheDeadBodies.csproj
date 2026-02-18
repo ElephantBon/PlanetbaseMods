@@ -37,6 +37,7 @@
     <Compile Include="Objects\Incinerator.cs" />
     <Compile Include="Objects\ModuleTypeMorgue.cs" />
     <Compile Include="Patches\AiRuleGoLoadResourcesToStore\updatePatch.cs" />
+    <Compile Include="Patches\Resource\isDeleteablePatch.cs" />
     <Compile Include="Patches\StorageGuruPatch.cs" />
     <Compile Include="Patches\ConstructionComponent\produceResourcePatch.cs" />
     <Compile Include="Patches\Module\onBuiltPatch.cs" />
