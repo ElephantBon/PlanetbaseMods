@@ -33,10 +33,12 @@
   <ItemGroup>
     <Compile Include="ContentManager.cs" />
     <Compile Include="Objects\Corpse.cs" />
+    <Compile Include="Objects\Remains.cs" />
     <Compile Include="Objects\Incinerator.cs" />
     <Compile Include="Objects\ModuleTypeMorgue.cs" />
     <Compile Include="Patches\AiRuleGoLoadResourcesToStore\updatePatch.cs" />
     <Compile Include="Patches\ConstructionComponent\produceResourcePatch.cs" />
+    <Compile Include="Patches\Module\onBuiltPatch.cs" />
     <Compile Include="Patches\Module\findStoragePatch.cs" />
     <Compile Include="Patches\Resource\postInitPatch.cs" />
     <Compile Include="Patches\Selectable\recyclePatch.cs" />
@@ -101,6 +103,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\icon_remains.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="readme.txt" />
     <Content Include="Assets\icon_corpse.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -113,6 +118,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\wherethedeadbodies">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Info.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

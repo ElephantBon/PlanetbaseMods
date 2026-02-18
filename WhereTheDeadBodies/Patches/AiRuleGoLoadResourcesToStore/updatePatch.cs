@@ -1,118 +1,170 @@
 ﻿using HarmonyLib;
 using Planetbase;
-using UnityEngine;
+using PlanetbaseModUtilities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using WhereTheDeadBodies.Objects;
+using static Planetbase.Resource;
 
 namespace WhereTheDeadBodies.Patches
 {
-    //[HarmonyPatch(typeof(AiRuleGoLoadResourcesToStore), nameof(AiRuleGoLoadResourcesToStore.update))]
-    //public class updatePatch
-    //{
-    //    public static bool Prefix(AiRuleGoLoadResourcesToStore __instance, ref bool __result, Character character)
-    //    {
-    //        if(__instance.hasCarryPriority(character) && __instance.canWork(character)) {
-    //            if(goGetResourceToStore(character, ResourceTypeList.MedicalSuppliesInstance)) {
-    //                __result = true;
-    //                return false;
-    //            }
-    //            if(goGetResourceToStore(character, ResourceTypeList.GunInstance)) {
-    //                __result = true;
-    //                return false;
-    //            }
-    //            Module module = Module.findStorage(character);
-    //            if(module != null) {
-    //                var targetResourceType = (module.getModuleType() is ModuleTypeMorgue ? TypeList<ResourceType, ResourceTypeList>.find<Corpse>() : null);
-    //                Resource resource = Resource.findStorable(character, targetResourceType, includeStorages: false);
+    /// <summary>
+    /// Prevent people go to pick up resources when there is no correct type of storage available
+    /// </summary>
+    [HarmonyPatch(typeof(AiRuleGoLoadResourcesToStore), nameof(AiRuleGoLoadResourcesToStore.update))]
+    public class updatePatch
+    {
+        public static bool Prefix(AiRuleGoLoadResourcesToStore __instance, ref bool __result, Character character)
+        {
+            __result = false;
+            if(__instance.hasCarryPriority(character) && __instance.canWork(character)) {
+                if(goGetResourceToStore(__instance, character, ResourceTypeList.MedicalSuppliesInstance)) {
+                    __result = true;
+                }
+                else
+                if(goGetResourceToStore(__instance, character, ResourceTypeList.GunInstance)) {
+                    __result = true;                    
+                }
+                else { 
+                    if(StoreResourceTask.tasks.Count == 0)
+                        StoreResourceTask.update();
 
-    //                if(resource != null) {
-    //                    __result = goTarget(character, resource, module);
-    //                    return false;
-    //                }
-    //            }
-    //        }
-    //        return false;
-    //    }
-    //    private static bool goGetResourceToStore(Character character, ResourceType resourceType)
-    //    {
-    //        ConstructionComponent constructionComponent = Module.findStorageComponent(character, resourceType);
-    //        if(constructionComponent != null) {
-    //            Resource resource = Resource.findStorable(character, resourceType, includeStorages: true);
-    //            if(resource != null) {
-    //                return goTarget(character, resource, constructionComponent);
-    //            }
-    //        }
+                    Resource resource = null;
+                    Module module = null;
+                    var task = StoreResourceTask.findBest(character, out resource, out module);
+                    if(resource != null && module != null) {
+                        StoreResourceTask.clear();
+                        __result = goTarget(character, resource, module);
+                    }
+                }
+            }
 
-    //        return false;
-    //    }
-    //    private static bool goTarget(Character character, Selectable targetSelectable, Selectable finalTarget = null, Location overrideLocation = Location.Unknown)
-    //    {
-    //        Target target = new Target(targetSelectable);
-    //        target.setRadius(targetSelectable.getRadius() + character.getRadius());
-    //        return goTarget(character, target, finalTarget, overrideLocation);
-    //    }
-    //    private static bool goTarget(Character character, Target target, Selectable finalTarget = null, Location overrideLocation = Location.Unknown)
-    //    {
-    //        Selectable selectable = target.getSelectable();
-    //        Location location = ((overrideLocation == Location.Unknown) ? target.getLocation() : overrideLocation);
-    //        if(character.getLocation() == location) {
-    //            if(location != Location.Exterior) {
-    //                character.startWalking(target, finalTarget);
-    //                return true;
-    //            }
+            return false;
+        }
 
-    //            int exteriorColorIndex = NavigationGraph.getExteriorColorIndex(target.getPosition());
-    //            int exteriorColorIndex2 = NavigationGraph.getExteriorColorIndex(character.getPosition());
-    //            if(exteriorColorIndex == exteriorColorIndex2) {
-    //                character.startWalking(target, finalTarget);
-    //                return true;
-    //            }
 
-    //            if(exteriorColorIndex == -1) {
-    //                Debug.LogWarning("Trying to reach isolated target: " + character.getName() + " - " + target);
-    //                return false;
-    //            }
-    //        }
+        public class StoreResourceTask
+        {
+            public Resource resource;
+            public List<Module> canidateStorages;
 
-    //        if(character.isWaitingForAirlock()) {
-    //            return true;
-    //        }
+            public static List<StoreResourceTask> tasks = new List<StoreResourceTask>();
 
-    //        return goToBestAirlock(character, selectable, finalTarget);
-    //    }
-    //    private static bool goToBestAirlock(Character character, Selectable targetSelectable, Selectable finalTarget = null)
-    //    {
-    //        Module module = null;
-    //        module = ((character.getLocation() != 0) ? Module.findClosestAirlock(character, character.getPosition()) : Module.findClosestAirlock(character, targetSelectable.getPosition()));
-    //        if(module != null) {
-    //            if(!character.isWaitingForAirlock(module)) {
-    //                if(targetSelectable == finalTarget) {
-    //                    Debug.LogError("goToBestAirlock - Target is the same as final target");
-    //                }
+            public static StoreResourceTask findBest(Character character, out Resource resultResource, out Module resultModule)
+            {
+                StoreResourceTask resultTask = null;
+                resultResource = null;
+                resultModule = null;
 
-    //                if(finalTarget != null) {
-    //                    character.startWalking(getAirlockTarget(module, character), new Selectable[2] { targetSelectable, finalTarget });
-    //                }
-    //                else {
-    //                    character.startWalking(getAirlockTarget(module, character), targetSelectable);
-    //                }
-    //            }
+                // Find best resource
+                float num = float.MaxValue;
+                foreach(var task in tasks) {
+                    var resource = task.resource;
+                    if(resource.getPotentialUserCount(character) > 0)
+                        continue;
 
-    //            return true;
-    //        }
+                    float num2 = (resource.getPosition() - character.getPosition()).magnitude;
+                    if(character.getLocation() == resource.getLocation()) {
+                        num2 -= 20f;
+                    }
 
-    //        return false;
-    //    }
-    //    private static Target getAirlockTarget(Module airlock, Character character)
-    //    {
-    //        Vector3 position = airlock.getPoint("exit_point").position;
-    //        if(character.getLocation() == Location.Interior) {
-    //            position = airlock.getPoint("entry_point").position;
-    //        }
+                    num2 += CoreUtils.GetMember<Resource, Indicator>("mConditionIndicator", resource).getValue() * 100f;
+                    if(num2 < num && CoreUtils.InvokeMethod<Resource, bool>("calculateReachable", resource)) {
+                        num = num2;
+                        resultTask = task;
+                        resultResource = resource;
+                    }
+                }
 
-    //        Target target = new Target(airlock, position);
-    //        target.setRadius(1f);
-    //        return target;
-    //    }
+                // Find best module for the resource
+                if(resultTask != null) {
+                    WhereTheDeadBodies.ModEntry.Logger.Log($"findBest, character={character.getName()}, resource={resultResource.getName()}, storageCount={resultTask.canidateStorages.Count}");
+                    num = float.MaxValue;
+                    var position = character.getPosition();
+                    foreach(var module in resultTask.canidateStorages) {
+                        if(module.isOperational() && module.isSurvivable(character) && module.getEmptyStorageSlotCount() > module.getPotentialUserCount(character)) {
+                            float sqrMagnitude = (module.getPosition() - position).sqrMagnitude;
+                            if(sqrMagnitude < num) {
+                                resultModule = module;
+                                num = sqrMagnitude;
+                                WhereTheDeadBodies.ModEntry.Logger.Log($"findBest, character={character.getName()}, resource={resultResource.getName()}, module={resultModule.getName()}");
+                            }
+                        }
+                    }
+                }
 
-    //}
+                return resultTask;
+            }
+
+            internal static void add(Resource resource, List<Module> storages)
+            {
+                tasks.Add(new StoreResourceTask() { resource = resource, canidateStorages = storages});
+            }
+
+            internal static void clear()
+            {
+                tasks.Clear();
+            }
+
+            internal static void remove(StoreResourceTask task)
+            {
+                tasks.Remove(task);
+            }
+
+            internal static void update()
+            {
+                clear();
+
+                // Find all storages have empty slots
+                var storages = Module.getCategoryModules(Module.Category.Storage)?.Where(x => x.getEmptyStorageSlotCount() > 0).ToList();
+                if(storages == null || storages.Count == 0)
+                    return;
+
+                // Find all idle resources
+                var resources = new List<Resource>();
+                CoreUtils.GetMember<Resource, List<Resource>>("mResources").ForEach(resource => {
+                    bool flag = !resource.isEmbedded();
+                    if(resource.getLocation() == Location.Exterior && !Singleton<SecurityManager>.getInstance().isGoingOutsideAllowed()) {
+                        flag = false;
+                    }
+                    else if(!flag && resource.getContainer().getParent() is ConstructionComponent constructionComponent && constructionComponent.hasFlag(1048576) && constructionComponent.canProduceResource(resource.getResourceType())) {
+                        flag = true;
+                    }
+
+                    if(flag && !resource.isTraded() && resource.getState() == State.Idle) {
+                        resources.Add(resource);
+                    }
+                });
+
+                // Create tasks
+                var normalStorages = storages.Where(x => !(x.getModuleType() is ModuleTypeMorgue)).ToList();
+                var morgues = storages.Where(x => x.getModuleType() is ModuleTypeMorgue).ToList();
+                foreach(var resource in resources) {
+                    if(resource.getResourceType() is Corpse) {
+                        if(morgues.Count > 0) 
+                            add(resource, morgues);
+                    }
+                    else {
+                        if(normalStorages.Count > 0)
+                            add(resource, normalStorages);
+                    }
+                }
+            }
+        }
+
+        private static bool goGetResourceToStore(AiRuleGoLoadResourcesToStore instance, Character character, ResourceType resourceType)
+        {
+            return CoreUtils.InvokeMethod<AiRuleGoLoadResourcesToStore, bool>("goGetResourceToStore", instance, character, resourceType);
+        }
+
+        private static bool goTarget(Character character, Selectable targetSelectable, Selectable finalTarget = null, Location overrideLocation = Location.Unknown)
+        {
+            WhereTheDeadBodies.ModEntry.Logger.Log($"goTarget, character={character.getName()}, target={targetSelectable?.ToString()}, finalTarget={finalTarget?.ToString()}");
+            System.Reflection.MethodInfo method = typeof(AiRule).GetMethod("goTarget", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic, null, 
+                    new Type[] { typeof(Character), typeof(Selectable), typeof(Selectable), typeof(Location) }, null);
+            return (bool)method.Invoke(null, new object[] { character, targetSelectable, finalTarget, overrideLocation });
+        }
+    }
 }

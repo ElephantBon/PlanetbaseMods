@@ -1,10 +1,6 @@
 ﻿using Planetbase;
 using PlanetbaseModUtilities;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace WhereTheDeadBodies.Objects
 {
@@ -16,20 +12,18 @@ namespace WhereTheDeadBodies.Objects
         {
             mConstructionCosts = new ResourceAmounts();
             mConstructionCosts.add(TypeList<ResourceType, ResourceTypeList>.find<Metal>(), 1);
+            mIcon = ContentManager.IconIncinerator;
             mResourceConsumption = new List<ResourceType>();
             mResourceConsumption.Add(TypeList<ResourceType, ResourceTypeList>.find<Corpse>());
-            addResourceProduction<Vitromeat>(); // Remove on produced
-            mResourceProductionPeriod = 180f;
+            addResourceProduction<Remains>();
             mEmbeddedResourceCount = 1;
+            mResourceProductionPeriod = 120f;
+            mPowerGeneration = -10000;
+            mFlags = 1572904;
             mOperatorSpecialization = TypeList<Specialization, SpecializationList>.find<Worker>();
-            mFlags |= 1048872;
-            mRadius = 2.5f;
             addUsageAnimation(CharacterAnimationType.WorkStanding);
 
-            // TODO: decrease more morale on operating
-
             mName = Name;
-            mIcon = ContentManager.IconIncinerator;
             mPrefabName = "PrefabMetalProcessor";
 
             initStrings();

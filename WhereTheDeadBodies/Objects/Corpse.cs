@@ -1,11 +1,7 @@
 ﻿using Planetbase;
 using PlanetbaseModUtilities;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using UnityEngine;
-using UnityEngine.UI;
-using static Planetbase.CharacterAnimation;
 using static Planetbase.Human;
 
 namespace WhereTheDeadBodies
@@ -19,7 +15,7 @@ namespace WhereTheDeadBodies
         public Corpse()
         {
             mStatsColor = new Color32(255, 255, 255, byte.MaxValue);
-            mValue = 10;
+            mValue = -10;
             mMerchantCategory = MerchantCategory.Count;
             mSize = ResourceType.LargeResourceSize;
 
@@ -155,7 +151,7 @@ namespace WhereTheDeadBodies
             resource.drop(Resource.State.Idle);
 
             // Fix position to ground
-            resource.setPosition(new Vector3(resource.getPosition().x, 0, resource.getPosition().z));
+            resource.setPosition(new Vector3(resource.getPosition().x, resource.getPosition().y - 1f, resource.getPosition().z));
         }
     }
 }

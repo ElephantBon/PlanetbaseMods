@@ -1,7 +1,10 @@
 ﻿using Planetbase;
 using PlanetbaseModUtilities;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using WhereTheDeadBodies.Objects;
+using WhereTheDeadBodies.Patches;
 using static UnityModManagerNet.UnityModManager;
 
 namespace WhereTheDeadBodies
@@ -21,10 +24,12 @@ namespace WhereTheDeadBodies
             ContentManager.Init(modEntry.Path);
 
             Corpse.RegisterString();
+            Remains.RegisterString();
             Incinerator.RegisterString();
             ModuleTypeMorgue.RegisterString();
 
-            CoreUtils.InvokeMethod("addResource", ResourceTypeList.getInstance(), new Corpse());
+            ResourceTypeList.getInstance().AddType(new Corpse());
+            ResourceTypeList.getInstance().AddType(new Remains());
             ComponentTypeList.getInstance().AddType(new Incinerator());
             ModuleTypeList.getInstance().AddType(new ModuleTypeMorgue());
         }
@@ -50,12 +55,22 @@ namespace WhereTheDeadBodies
 
             if(Input.GetKeyUp(KeyCode.C)) {
                 var selected = Selection.getSelected();
-                if(selected != null && selected is Character c) {
-                    var r = Resource.create(ResourceTypeList.find<Corpse>(), c.getPosition() + MathUtil.randFlatVector(c.getRadius()), Location.Exterior);
-                    r.drop(Resource.State.Idle);                    
-                    c.destroy();
+                if(selected != null) { 
+                    if(selected is Character c) {
+                        var r = Resource.create(ResourceTypeList.find<Corpse>(), c.getPosition() + MathUtil.randFlatVector(c.getRadius()), Location.Exterior);
+                        r.drop(Resource.State.Idle);                    
+                        c.destroy();
+                    }
+                }
+                else {
+                    var colonists = CoreUtils.GetMember<Character, List<Character>>("mCharacters").Where(x => x is Colonist).ToArray();
+                    foreach(var colonist in colonists) {
+                        colonist.decayIndicator(CharacterIndicator.Morale, -1f);
+                    }
                 }
             }
+
+            //updatePatch.StoreResourceTask.update();
         }
     }
 }

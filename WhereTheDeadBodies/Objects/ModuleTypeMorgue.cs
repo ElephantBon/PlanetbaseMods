@@ -1,9 +1,6 @@
 ﻿using Planetbase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using PlanetbaseModUtilities;
+using UnityEngine;
 
 namespace WhereTheDeadBodies.Objects
 {
@@ -22,7 +19,7 @@ namespace WhereTheDeadBodies.Objects
 
             mComponentTypes = new ComponentType[]
             {
-                TypeList<ComponentType, ComponentTypeList>.find<Incinerator>(),
+                TypeList<ComponentType, ComponentTypeList>.find<Incinerator>()
             };
 
             mName = Name;
@@ -31,6 +28,7 @@ namespace WhereTheDeadBodies.Objects
 
             initStrings();
         }
+
         public static void RegisterString()
         {
             StringUtils.RegisterString("morgue", Name);
