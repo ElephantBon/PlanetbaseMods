@@ -15,35 +15,69 @@ namespace WhereTheDeadBodies.Patches
     {
         public static bool Prefix(ref Module __result, Character character)
         {
-            float num = float.MaxValue;            
-            Vector3 position = character.getPosition();
-            List<Module> list = Module.getCategoryModules(Module.Category.Storage);
-            if(list != null) {
-                // Choose normal Storage or Morgue depends on current loadded resource type
-                var loadedResource = character.getLoadedResource();
-                if(loadedResource != null) {
-                    if(loadedResource.getResourceType() is Corpse) {
-                        list = list.Where(x => x.getModuleType() is ModuleTypeMorgue).ToList();
+            if(StorageGuruPatch.IsLoaded()) {
+                // Only handle corpse and morgue
+                float num = float.MaxValue;
+                Vector3 position = character.getPosition();
+                List<Module> list = Module.getCategoryModules(Module.Category.Storage);
+                if(list != null) {
+                    // Choose normal Storage or Morgue depends on current loadded resource type
+                    var loadedResource = character.getLoadedResource();
+                    if(loadedResource != null) { 
+                        if(loadedResource.getResourceType() is Corpse) {
+                            list = list.Where(x => x.getModuleType() is ModuleTypeMorgue).ToList();
+                        }
+                        else {
+                            return false; // Shouldn't fall here
+                        }
                     }
-                    else {
-                        list = list.Where(x => !(x.getModuleType() is ModuleTypeMorgue)).ToList();
-                    }
-                }
 
-                int count = list.Count;
-                for(int i = 0; i < count; i++) {
-                    Module module = list[i];
-                    if(module.isOperational() && module.isSurvivable(character) && module.getEmptyStorageSlotCount() > module.getPotentialUserCount(character)) {
-                        float sqrMagnitude = (module.getPosition() - position).sqrMagnitude;
-                        if(sqrMagnitude < num) {
-                            __result = module;
-                            num = sqrMagnitude;
+                    int count = list.Count;
+                    for(int i = 0; i < count; i++) {
+                        Module module = list[i];
+                        if(module.isOperational() && module.isSurvivable(character) && module.getEmptyStorageSlotCount() > module.getPotentialUserCount(character)) {
+                            float sqrMagnitude = (module.getPosition() - position).sqrMagnitude;
+                            if(sqrMagnitude < num) {
+                                __result = module;
+                                num = sqrMagnitude;
+                            }
                         }
                     }
                 }
-            }
 
-            return false;
+                return false;
+            }
+            else { 
+                float num = float.MaxValue;            
+                Vector3 position = character.getPosition();
+                List<Module> list = Module.getCategoryModules(Module.Category.Storage);
+                if(list != null) {
+                    // Choose normal Storage or Morgue depends on current loadded resource type
+                    var loadedResource = character.getLoadedResource();
+                    if(loadedResource != null) {
+                        if(loadedResource.getResourceType() is Corpse) {
+                            list = list.Where(x => x.getModuleType() is ModuleTypeMorgue).ToList();
+                        }
+                        else {
+                            list = list.Where(x => !(x.getModuleType() is ModuleTypeMorgue)).ToList();
+                        }
+                    }
+
+                    int count = list.Count;
+                    for(int i = 0; i < count; i++) {
+                        Module module = list[i];
+                        if(module.isOperational() && module.isSurvivable(character) && module.getEmptyStorageSlotCount() > module.getPotentialUserCount(character)) {
+                            float sqrMagnitude = (module.getPosition() - position).sqrMagnitude;
+                            if(sqrMagnitude < num) {
+                                __result = module;
+                                num = sqrMagnitude;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
         }
     }
 }
