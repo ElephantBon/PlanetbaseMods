@@ -131,9 +131,8 @@ namespace MoreHotkeys
                         // Build or finish progress of the selected
                         if(!selected.isBuilt())
                             selected.onBuilt();
-                        var indicator = selected.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress);
-                        if(indicator != null)
-                            indicator.increase(1000000);
+                        else
+                            selected.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress)?.increase(1000000);
                     }
                 }
             }
