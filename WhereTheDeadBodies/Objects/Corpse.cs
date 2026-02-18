@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using static Planetbase.Human;
 
-namespace WhereTheDeadBodies
+namespace WhereTheDeadBodies.Objects
 {
     internal class Corpse : ResourceType
     {

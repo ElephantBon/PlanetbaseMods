@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using Planetbase;
 using System;
+using WhereTheDeadBodies.Objects;
 
 namespace WhereTheDeadBodies.Patches
 {
