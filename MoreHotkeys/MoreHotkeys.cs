@@ -140,6 +140,12 @@ namespace MoreHotkeys
                 }
             }
             else
+            if(settings.EnableCheat && Input.GetKeyUp(settings.KeyMorale)) {
+                var colonists = CoreUtils.GetMember<Character, List<Character>>("mCharacters").Where(x => x is Colonist).ToArray();
+                foreach(var colonist in colonists) 
+                    colonist.decayIndicator(CharacterIndicator.Morale, -1f);
+            }
+            else
             if(settings.EnableDebug && Input.GetKeyUp(settings.KeyDamage)) {
                 var selected = Selection.getSelected();
                 if(selected == null) {

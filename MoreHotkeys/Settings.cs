@@ -10,7 +10,8 @@ namespace MoreHotkeys
         [Draw("Keybind to recycle all components in selected building")] public KeyCode KeyRecycleAllComponents = KeyCode.P;
         [Draw("Keybind to complete selected construction or component instantly, or advance the progress of processor to 100%. Hold Shift to complete all or same type of the selected. Spawn colonist ship when selecting landing pad. (Cheat)")] public KeyCode KeyInstantBuild = KeyCode.I;
         [Draw("Keybind to damage selected construction, component, bot or human. Remove all resources on ground if no selection. (Debug)")] public KeyCode KeyDamage = KeyCode.K;
-        [Draw("Enable cheat")] public bool EnableCheat = true;
+        [Draw("Keybind to recover morale of all colonists. (Cheat)")] public KeyCode KeyMorale = KeyCode.V;
+        [Draw("Enable cheat")] public bool EnableCheat = false;
         [Draw("Enable debug")] public bool EnableDebug = false;
 
         public override void Save(UnityModManager.ModEntry modEntry)
