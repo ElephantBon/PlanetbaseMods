@@ -1,6 +1,9 @@
+**Changes in Version 2.1.4**
+- Fixed the bug ImprovedResourceStorage.GetValidModules when modules is null.
+
 **Changes in Version 2.1.3**
-Cloned from https://github.com/JCoil/PlanetbaseMods e95a211
-Update for exception caused by new version of Unity on loading texture.
+- Cloned from https://github.com/JCoil/PlanetbaseMods e95a211
+- Update for exception caused by new version of Unity on loading texture.
 
 **Changes in Version 2.1.2**
 Bug fix:
