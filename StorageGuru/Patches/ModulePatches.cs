@@ -1,10 +1,7 @@
 ﻿using HarmonyLib;
 using Planetbase;
-using PlanetbaseModUtilities; 
-using System;
+using StorageGuru.Patches;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using UnityEngine;
 
@@ -20,7 +17,12 @@ namespace StorageGuru
 		[HarmonyPrefix]
 		[HarmonyPatch(nameof(Module.findStorage))]
 		public static bool FindStoragePrefix(ref Module __result, Character character)
-		{
+        {
+
+            if(WhereTheDeadBodiesPatch.IsLoaded() && WhereTheDeadBodiesPatch.IsCorpse(character.getLoadedResource()))
+                return true; // Let WhereTheDeadBodies find morgue for corpse
+
+            
 			float smallestDistance = float.MaxValue;
 			__result = null;
 			Vector3 position = character.getPosition();
@@ -51,7 +53,7 @@ namespace StorageGuru
 				}
 			}
 
-			return false; // We don't want to run the original code
+            return false; // We don't want to run the original code
 		}
 
 		[HarmonyPostfix]
@@ -62,6 +64,9 @@ namespace StorageGuru
 			{
 				if (!(___mResourceStorage is ImprovedResourceStorage)) // This means it must be newly built
 				{
+					if(WhereTheDeadBodiesPatch.IsLoaded() && WhereTheDeadBodiesPatch.IsModuleMorgue(__instance))
+						return;
+
 					___mResourceStorage = new ImprovedResourceStorage(__instance.getFloorPosition(), __instance.getRadius());
 				}
 			}
@@ -90,6 +95,9 @@ namespace StorageGuru
 		[HarmonyPatch(typeof(Module), nameof(Module.deserialize))]
 		public static void DeserializePostfix(ref Module __instance, XmlNode node, ref ResourceStorage ___mResourceStorage)
 		{
+			if(WhereTheDeadBodiesPatch.IsLoaded() && WhereTheDeadBodiesPatch.IsModuleMorgue(__instance))
+				return;
+
 			if (___mResourceStorage != null)
 			{
 				var resourceStorage = new ImprovedResourceStorage();

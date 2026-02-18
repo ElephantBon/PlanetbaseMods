@@ -1,9 +1,10 @@
 ﻿{
   "Id": "StorageGuru",
   "DisplayName": "Storage Guru",
-  "Version": "2.1.4",
+  "Version": "2.1.5",
   "ManagerVersion": "0.32.4a",
   "GameVersion": "1.4.2",
+  "LoadAfter": [],
   "AssemblyName": "StorageGuru.dll",
   "EntryMethod": "StorageGuru.StorageGuru.Init"
 }

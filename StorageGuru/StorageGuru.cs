@@ -6,6 +6,7 @@ using System;
 using UnityEngine;
 using PlanetbaseModUtilities;
 using static UnityModManagerNet.UnityModManager;
+using StorageGuru.Patches;
 
 namespace StorageGuru
 {
@@ -36,7 +37,20 @@ namespace StorageGuru
 
         private void RefreshResourceDefinitions()
         {
-            MasterResourceDefinitions = TypeList<ResourceType, ResourceTypeList>.get().Where(x => !(x is Coins)).ToList();  // Clear out non-storeable resources (coins)
+            MasterResourceDefinitions = TypeList<ResourceType, ResourceTypeList>.get().Where(x => IsValidResourceType(x)).ToList();  // Clear out non-storeable resources (coins)            
+        }
+
+        private bool IsValidResourceType(ResourceType type)
+        {
+            if(type is Coins)
+                return false;
+            if(WhereTheDeadBodiesPatch.IsLoaded()) {
+                if(WhereTheDeadBodiesPatch.IsCorpse(type))
+                    return false;
+                if(WhereTheDeadBodiesPatch.IsRemains(type))
+                    return false;
+            }
+            return true;
         }
 
         public static void Log(string message)

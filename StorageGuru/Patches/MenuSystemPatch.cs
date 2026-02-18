@@ -1,12 +1,7 @@
 ﻿using HarmonyLib;
 using Planetbase;
-using PlanetbaseModUtilities; 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using UnityEngine;
+using PlanetbaseModUtilities;
+using StorageGuru.Patches;
 
 namespace StorageGuru
 {
@@ -17,7 +12,10 @@ namespace StorageGuru
 		{
 			if (Selection.getSelectedConstruction() is Module module && module.isBuilt() && module.GetCategory() == Module.Category.Storage)
 			{
-				__instance.GetMenu("mMenuAction").getItems().Insert(1, new GuiStorageMenuItem(module));
+                if(WhereTheDeadBodiesPatch.IsLoaded() && WhereTheDeadBodiesPatch.IsModuleMorgue(module))
+                    return;
+
+                __instance.GetMenu("mMenuAction").getItems().Insert(1, new GuiStorageMenuItem(module));
 			}
 		}
     }
@@ -34,6 +32,9 @@ namespace StorageGuru
         {
             if (activeModule.isBuilt() && activeModule.GetCategory() == Module.Category.Storage)
             {
+                if(WhereTheDeadBodiesPatch.IsLoaded() && WhereTheDeadBodiesPatch.IsModuleMorgue(activeModule))
+                    return true;
+
                 __instance.GetMenu("mMenuEdit").clear();
 
                 if (Selection.getSelected() == null)
