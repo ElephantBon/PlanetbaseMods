@@ -132,6 +132,9 @@ namespace MoreHotkeys
                         if(!selected.isBuilt())
                             selected.onBuilt();
                         else
+                        if(selected is Module module && (module.getModuleType() is ModuleTypeLandingPad || module.getModuleType() is ModuleTypeStarport)) 
+                            LandingShipManager.getInstance().trySpawnColonistShip();                        
+                        else                    
                             selected.getIndicators().FirstOrDefault(i => i.getType() == IndicatorType.Progress)?.increase(1000000);
                     }
                 }
