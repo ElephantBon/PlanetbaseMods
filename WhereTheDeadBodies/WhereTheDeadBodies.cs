@@ -53,22 +53,22 @@ namespace WhereTheDeadBodies
             //    }
             //}
 
-            if(Input.GetKeyUp(KeyCode.C)) {
-                var selected = Selection.getSelected();
-                if(selected != null) { 
-                    if(selected is Character c) {
-                        var r = Resource.create(ResourceTypeList.find<Corpse>(), c.getPosition() + MathUtil.randFlatVector(c.getRadius()), Location.Exterior);
-                        r.drop(Resource.State.Idle);                    
-                        c.destroy();
-                    }
-                }
-                else {
-                    var colonists = CoreUtils.GetMember<Character, List<Character>>("mCharacters").Where(x => x is Colonist).ToArray();
-                    foreach(var colonist in colonists) {
-                        colonist.decayIndicator(CharacterIndicator.Morale, -1f);
-                    }
-                }
-            }
+            //if(Input.GetKeyUp(KeyCode.C)) {
+            //    var selected = Selection.getSelected();
+            //    if(selected != null) { 
+            //        if(selected is Character c) {
+            //            var r = Resource.create(ResourceTypeList.find<Corpse>(), c.getPosition() + MathUtil.randFlatVector(c.getRadius()), Location.Exterior);
+            //            r.drop(Resource.State.Idle);                    
+            //            c.destroy();
+            //        }
+            //    }
+            //    else {
+            //        var colonists = CoreUtils.GetMember<Character, List<Character>>("mCharacters").Where(x => x is Colonist).ToArray();
+            //        foreach(var colonist in colonists) {
+            //            colonist.decayIndicator(CharacterIndicator.Morale, -1f);
+            //        }
+            //    }
+            //}
 
             //updatePatch.StoreResourceTask.update();
         }
