@@ -1,11 +1,8 @@
 ﻿using Planetbase;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using static Planetbase.Human;
 using PlanetbaseModUtilities;
 
-namespace NuclearPlant
+namespace NuclearPlant.Objects
 {
     internal class UraniumOre : ResourceType
     {

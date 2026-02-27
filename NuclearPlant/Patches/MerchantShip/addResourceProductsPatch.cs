@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using NuclearPlant.Objects;
 using Planetbase;
 using PlanetbaseModUtilities;
 using System.Collections.Generic;

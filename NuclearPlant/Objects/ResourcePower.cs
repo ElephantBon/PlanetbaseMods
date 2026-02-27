@@ -1,12 +1,8 @@
 ﻿using Planetbase;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using static Planetbase.Human;
 using PlanetbaseModUtilities;
-using System.Xml.Linq;
 
-namespace NuclearPlant
+namespace NuclearPlant.Objects
 {
     internal class ResourcePower : ResourceType
     {
