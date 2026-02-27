@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ContentManager.cs" />
+    <Compile Include="Patches\GeniusEngineersPatch.cs" />
     <Compile Include="GuiStorageMenu.cs" />
     <Compile Include="ImprovedResourceStorage.cs" />
     <Compile Include="ManifestEntry.cs" />

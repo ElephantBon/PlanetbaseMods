@@ -45,14 +45,20 @@ namespace StorageGuru
             if(type is Coins)
                 return false;
             if(WhereTheDeadBodiesPatch.IsLoaded()) {
-                if(WhereTheDeadBodiesPatch.IsCorpse(type))
-                    return false;
-                if(WhereTheDeadBodiesPatch.IsRemains(type))
+                if(WhereTheDeadBodiesPatch.IsCorpse(type)
+                || WhereTheDeadBodiesPatch.IsRemains(type))
                     return false;
             }
             if(NuclearPlantPatch.IsLoaded()) {
                 if(NuclearPlantPatch.IsPower(type))
                     return false;            
+            }
+            if(GeniusEngineersPatch.IsLoaded()) {
+                if(GeniusEngineersPatch.IsExtraBotLife(type)
+                || GeniusEngineersPatch.IsExtraPowerStorage(type)
+                || GeniusEngineersPatch.IsExtraVegetableLife(type)
+                || GeniusEngineersPatch.IsExtraWaterStorage(type))
+                    return false;
             }
             return true;
         }
