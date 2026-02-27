@@ -2,7 +2,7 @@
 using UnityEngine;
 using PlanetbaseModUtilities;
 
-namespace GeniusEngineers
+namespace GeniusEngineers.Objects
 {
     internal class ResourceExtraWaterStorage: ResourceType
     {
