@@ -18,7 +18,7 @@ namespace NuclearPlant.Patches
             if(!(__instance is Module module && module.getModuleType() is ModuleTypeNuclearPlant))
                 return;
 
-            var model = AssetUtils.LoadGameObject(Path.Combine(Main.ModEntry.Path, "Assets\\nuclearplant.assetbundle"), "NuclearCore");
+            var model = ContentManager.ModelNuclearCore;//AssetUtils.LoadGameObject(Path.Combine(Main.ModEntry.Path, "Assets\\nuclearplant.assetbundle"), "NuclearCore");
 
             GameObject obj = Object.Instantiate<GameObject>(model);
             obj.SetActive(true);

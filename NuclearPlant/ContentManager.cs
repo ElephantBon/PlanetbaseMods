@@ -13,6 +13,7 @@ namespace NuclearPlant
         public static Texture2D IconUraniumOre { get; private set; }
         public static Texture2D IconUraniumProcessor { get; private set; }
         public static Texture2D IconUraniumRod { get; private set; }
+        public static GameObject ModelNuclearCore { get; private set; }
 
         public static void Init(string modPath)
         {
@@ -26,6 +27,9 @@ namespace NuclearPlant
             IconUraniumOre = AssetUtils.LoadTexture(Path.Combine(modPath, @"Assets\icon_uranium_ore.png"));
             IconUraniumRod = AssetUtils.LoadTexture(Path.Combine(modPath, @"Assets\icon_uranium_rod.png"));
             IconTechNuclearPlant = AssetUtils.LoadTexture(Path.Combine(modPath, @"Assets\icon_tech_nulear_plant.png"));
+
+            // Prefabs
+            ModelNuclearCore = AssetUtils.LoadGameObject(Path.Combine(Main.ModEntry.Path, "Assets\\nuclearplant.assetbundle"), "NuclearCore");
         }
     }
 }
