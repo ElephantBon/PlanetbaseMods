@@ -50,6 +50,10 @@ namespace StorageGuru
                 if(WhereTheDeadBodiesPatch.IsRemains(type))
                     return false;
             }
+            if(NuclearPlantPatch.IsLoaded()) {
+                if(NuclearPlantPatch.IsPower(type))
+                    return false;            
+            }
             return true;
         }
 
