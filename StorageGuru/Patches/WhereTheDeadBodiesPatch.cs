@@ -8,6 +8,8 @@ namespace StorageGuru.Patches
 {
     internal class WhereTheDeadBodiesPatch
     {
+        private const string ModName = "WhereTheDeadBodies";
+
         private static bool? isLoaded;
 
         // Cache
@@ -18,7 +20,7 @@ namespace StorageGuru.Patches
         public static bool IsLoaded()
         {
             if(isLoaded == null) { 
-                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "WhereTheDeadBodies");
+                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == ModName);
                 isLoaded = assembly != null;
             }
             return isLoaded.Value;
@@ -27,18 +29,18 @@ namespace StorageGuru.Patches
 
         internal static bool IsModuleMorgue(Module module)
         {
-            return module.getModuleType().ToString() == "WhereTheDeadBodies.Objects.ModuleTypeMorgue";
+            return module.getModuleType().ToString() == ModName+".Objects.ModuleTypeMorgue";
         }
         internal static bool IsCorpse(Resource resource)
         {
-            return resource != null && resource.getResourceType().ToString() == "WhereTheDeadBodies.Objects.Corpse";
+            return resource != null && resource.getResourceType().ToString() == ModName+".Objects.Corpse";
         }
         internal static bool IsCorpse(ResourceType type)
         {
             if(typeCorpse == null) { 
-                typeCorpse = assembly.GetType("WhereTheDeadBodies.Objects.Corpse");
+                typeCorpse = assembly.GetType(ModName+".Objects.Corpse");
                 if(typeCorpse == null) 
-                    StorageGuru.ModEntry.Logger.Log("cannot find typeCorpse");
+                    StorageGuru.ModEntry.Logger.Log("cannot find "+nameof(typeCorpse));
             }
             return typeCorpse.IsInstanceOfType(type);
         }
@@ -46,9 +48,9 @@ namespace StorageGuru.Patches
         internal static bool IsRemains(ResourceType type)
         {
             if(typeRemains == null) { 
-                typeRemains = assembly.GetType("WhereTheDeadBodies.Objects.Remains");
+                typeRemains = assembly.GetType(ModName+".Objects.Remains");
                 if(typeRemains == null)
-                    StorageGuru.ModEntry.Logger.Log("cannot find typeRemains");
+                    StorageGuru.ModEntry.Logger.Log("cannot find "+nameof(typeRemains));
             }
             return typeRemains.IsInstanceOfType(type);
         }
