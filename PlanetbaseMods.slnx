@@ -6,6 +6,7 @@
   <Project Path="DecentChart/DecentChart.csproj" Id="1056bbbd-dd0b-4bda-8f2b-d9cddec12e84" />
   <Project Path="FreeBuilding/FreeBuilding.csproj" Id="290ac4ca-5c0c-4e4d-9dd2-203ff09ac482" />
   <Project Path="GeniusEngineers/GeniusEngineers.csproj" Id="8ab53604-d501-450b-8cf1-ea2fd7309b5c" />
+  <Project Path="HarshWorld/HarshWorld.csproj" Id="f46c26e1-6be1-4024-a03a-24832245e89f" />
   <Project Path="HeyHowAboutTheBasement/HeyHowAboutTheBasement.csproj" Id="d76dd996-a5ea-49ef-975d-1860e0c6bee9" />
   <Project Path="MoreHotkeys/MoreHotkeys.csproj" Id="ddf29596-af63-4293-95d0-1b49aaa9c057" />
   <Project Path="NuclearPlant/NuclearPlant.csproj" Id="f3f63e13-ab35-47d8-b8b5-376612bcebb3" />
