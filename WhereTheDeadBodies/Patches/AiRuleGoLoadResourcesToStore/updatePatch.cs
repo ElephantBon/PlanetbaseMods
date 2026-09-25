@@ -62,6 +62,8 @@ namespace WhereTheDeadBodies.Patches
                 float num = float.MaxValue;
                 foreach(var task in tasks) {
                     var resource = task.resource;
+                    if(resource == null)
+                        continue;
                     if(resource.getPotentialUserCount(character) > 0)
                         continue;
 
