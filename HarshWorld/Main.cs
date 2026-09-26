@@ -23,9 +23,12 @@ namespace HarshWorld
 
         public override void OnUpdate(ModEntry modEntry, float timeStep)
         {
+            CustomDisasterManager manager = CustomDisasterManager.GetOrCreate();
+            manager.Tick(timeStep);
+
             if(Input.GetKeyUp(settings.KeyTest))
             {
-                MeteorRainController.GetOrCreate().StartRain();
+                manager.TryTrigger(MeteorRainController.DisasterId);
             }
         }
 

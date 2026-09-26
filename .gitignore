@@ -367,3 +367,4 @@ Libs/*.dll
 
 # Zip outputs
 Outputs/*zip
+/Decompiled

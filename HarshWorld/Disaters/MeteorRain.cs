@@ -37,8 +37,10 @@ namespace HarshWorld
     /// over `duration` seconds, and plays a single looping ambience clip instead
     /// of dozens of overlapping per-meteor sfx.
     /// </summary>
-    public class MeteorRainController : MonoBehaviour
+    public class MeteorRainController : MonoBehaviour, ICustomScheduledDisaster
     {
+        public const string DisasterId = "meteor-rain";
+
         public static bool IsRaining { get; private set; }
 
         // Matches the radius the vanilla "no target" spawn branch uses, so the
@@ -46,6 +48,11 @@ namespace HarshWorld
         private const float ScatterRadius = 700f;
 
         private static MeteorRainController _instance;
+
+        public string Id { get { return DisasterId; } }
+        public bool IsInProgress { get { return IsRaining; } }
+        public float MinScheduleDelay { get { return 180f; } }
+        public float MaxScheduleDelay { get { return 420f; } }
 
         public static MeteorRainController GetOrCreate()
         {
@@ -61,23 +68,45 @@ namespace HarshWorld
         /// <param name="duration">Total length of the rain, in seconds.</param>
         /// <param name="minInterval">Minimum seconds between spawns.</param>
         /// <param name="maxInterval">Maximum seconds between spawns.</param>
-        /// <param name="ambienceClipPath">
-        /// Full path to a .wav/.ogg file (e.g. Path.Combine(modEntry.Path, "meteorrain.wav")).
-        /// Pass null to skip the ambience track.
-        /// </param>
-        public void StartRain(float duration = 30f, float minInterval = 0.015f, float maxInterval = 0.045f, string ambienceClipPath = null)
+        public bool StartRain(float duration = 30f, float minInterval = 0.015f, float maxInterval = 0.045f)
         {
             if (IsRaining)
             {
                 Debug.Log("[MeteorRain] Rain already in progress, ignoring.");
-                return;
+                return false;
             }
-            StartCoroutine(RainRoutine(duration, minInterval, maxInterval, ambienceClipPath));
+            StartCoroutine(RainRoutine(duration, minInterval, maxInterval));
+            return true;
         }
 
-        private IEnumerator RainRoutine(float duration, float minInterval, float maxInterval, string ambienceClipPath)
+        public bool TryStart()
+        {
+            return StartRain();
+        }
+
+        // Keeps the tense combat/hazard BGM going for the whole rain, the same
+        // way Sandstorm.update() pokes MusicManager every frame it's in progress.
+        public void UpdateInProgress(float timeStep)
+        {
+            if (IsRaining)
+            {
+                Singleton<MusicManager>.getInstance().onTension();
+            }
+        }
+
+        private IEnumerator RainRoutine(float duration, float minInterval, float maxInterval)
         {
             IsRaining = true;
+
+            // One-shot hazard notification, mirroring Sandstorm.onStart()'s
+            // "message_sandstorm_now" call. Swap the string for StringList.get("your_key")
+            // if you add a proper localization entry, and pick a real icon from
+            // ResourceList.StaticIcons (there's no meteor-storm icon in vanilla,
+            // so reuse one that fits, e.g. MessageSandstorm, or supply your own).
+            Singleton<MessageLog>.getInstance().addMessage(new Message(
+                "A meteor storm is approaching!",
+                ResourceList.StaticIcons.MessageSandstorm,
+                1));
 
             MeteorManager manager = Singleton<MeteorManager>.getInstance();
             Vector3 center = Singleton<TerrainGenerator>.getInstance().getCenter();
