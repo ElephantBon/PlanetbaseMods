@@ -1,169 +1,76 @@
-using System.Collections.Generic;
 using Planetbase;
-using PlanetbaseModUtilities;
-using UnityEngine;
+using System.Xml;
 
 namespace HarshWorld
-{
-    internal interface ICustomScheduledDisaster
+{ 
+    public class CustomDisasterManager : Singleton<CustomDisasterManager>
     {
-        string Id { get; }
-        bool IsInProgress { get; }
-        float MinScheduleDelay { get; }
-        float MaxScheduleDelay { get; }
-        bool TryStart();
-        void UpdateInProgress(float timeStep);
-    }
+        private Disaster[] mDisasters = new Disaster[1];
 
-    public class CustomDisasterManager
-    {
-        private class ScheduledDisasterState
+        private MeteorRain mMeteorRain;
+
+        public CustomDisasterManager()
         {
-            public readonly ICustomScheduledDisaster Disaster;
-            public float TimeUntilNext = -1f;
+            mMeteorRain = new MeteorRain();
+            mDisasters[0] = mMeteorRain;
+        }
 
-            public ScheduledDisasterState(ICustomScheduledDisaster disaster)
+        public void update(float timeStep)
+        {
+            for (int i = 0; i < mDisasters.Length; i++)
             {
-                Disaster = disaster;
-            }
-
-            public void ResetSchedule()
-            {
-                TimeUntilNext = UnityEngine.Random.Range(Disaster.MinScheduleDelay, Disaster.MaxScheduleDelay);
-
-                if (ModBase.ModEntry != null)
-                {
-                    ModBase.ModEntry.Logger.Log("[CustomDisasterManager] ResetSchedule: " + Disaster.Id + " in " + TimeUntilNext.ToString("F2") + "s");
-                }
+                mDisasters[i].update(timeStep);
             }
         }
 
-        private static CustomDisasterManager _instance;
-
-        private readonly List<ScheduledDisasterState> _orderedDisasters = new List<ScheduledDisasterState>();
-        private readonly Dictionary<string, ScheduledDisasterState> _disastersById = new Dictionary<string, ScheduledDisasterState>();
-
-        public static CustomDisasterManager GetOrCreate()
+        public override void destroy()
         {
-            if (_instance == null)
+            base.destroy();
+            for (int i = 0; i < mDisasters.Length; i++)
             {
-                _instance = new CustomDisasterManager();
-            }
-            return _instance;
-        }
-
-        private CustomDisasterManager()
-        {
-            Register(MeteorRainController.GetOrCreate());
-        }
-
-        private void Register(ICustomScheduledDisaster disaster)
-        {
-            ScheduledDisasterState state = new ScheduledDisasterState(disaster);
-            _orderedDisasters.Add(state);
-            _disastersById[disaster.Id] = state;
-        }
-
-        public void Tick(float timeStep)
-        {
-            if (!GameManagerPatch.IsUpdating)
-            {
-                ResetSchedules();
-                return;
-            }
-
-            bool anyCustomInProgress = false;
-            for (int i = 0; i < _orderedDisasters.Count; i++)
-            {
-                ScheduledDisasterState state = _orderedDisasters[i];
-                state.Disaster.UpdateInProgress(timeStep);
-                if (state.Disaster.IsInProgress)
-                {
-                    anyCustomInProgress = true;
-                }
-            }
-
-            if (anyCustomInProgress || IsVanillaDisasterInProgress())
-            {
-                return;
-            }
-
-            for (int i = 0; i < _orderedDisasters.Count; i++)
-            {
-                ScheduledDisasterState state = _orderedDisasters[i];
-                if (state.TimeUntilNext < 0f)
-                {
-                    state.ResetSchedule();
-                }
-
-                state.TimeUntilNext -= timeStep;
-                if (state.TimeUntilNext <= 0f)
-                {
-                    bool started = state.Disaster.TryStart();
-                    state.ResetSchedule();
-                    if (started)
-                    {
-                        break;
-                    }
-                }
+                mDisasters[i].destroy();
             }
         }
 
-        public bool TryTrigger(string disasterId)
+        public MeteorRain getMeteorRain()
         {
-            ScheduledDisasterState state;
-            if (!_disastersById.TryGetValue(disasterId, out state))
-            {
-                return false;
-            }
-
-            if (!CanStartNow())
-            {
-                return false;
-            }
-
-            bool started = state.Disaster.TryStart();
-            if (started)
-            {
-                state.ResetSchedule();
-            }
-            return started;
+            return mMeteorRain;
         }
 
-        private bool CanStartNow()
+        public bool anyInProgress()
         {
-            if (!GameManagerPatch.IsUpdating)
+            for (int i = 0; i < mDisasters.Length; i++)
             {
-                return false;
+                if (mDisasters[i].isInProgress())
+                    return true;
             }
-
-            if (IsVanillaDisasterInProgress())
-            {
-                return false;
-            }
-
-            for (int i = 0; i < _orderedDisasters.Count; i++)
-            {
-                if (_orderedDisasters[i].Disaster.IsInProgress)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return false;
         }
 
-        private static bool IsVanillaDisasterInProgress()
+        public Disaster getMeteorRainInProgress()
         {
-            DisasterManager disasterManager = Singleton<DisasterManager>.getInstance();
-            return disasterManager != null && disasterManager.anyInProgress();
+            if (mMeteorRain.isInProgress())
+            {
+                return mMeteorRain;
+            }
+            return null;
         }
 
-        private void ResetSchedules()
+        public void deserialize(XmlNode rootNode)
         {
-            for (int i = 0; i < _orderedDisasters.Count; i++)
+            mMeteorRain.deserialize(rootNode["meteor-rain"]);
+        }
+
+        public void serialize(XmlNode rootNode)
+        {
+            mMeteorRain.serialize(rootNode, "meteor-rain");
+        }
+
+        public void onTimeScaleChanged(float timeScale, bool paused)
+        {
+            for (int i = 0; i < mDisasters.Length; i++)
             {
-                _orderedDisasters[i].TimeUntilNext = -1f;
+                mDisasters[i].onTimeScaleChanged(timeScale, paused);
             }
         }
     }

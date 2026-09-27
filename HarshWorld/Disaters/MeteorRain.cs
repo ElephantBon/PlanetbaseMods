@@ -1,132 +1,162 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using HarmonyLib;
-using Planetbase;
+﻿using Planetbase;
+using PlanetbaseModUtilities;
+using DateTime = System.DateTime;
+using System.Xml;
 using UnityEngine;
 
 namespace HarshWorld
-{
-    /// <summary>
-    /// Mutes every real Unity AudioSource on a meteor the instant it's spawned,
-    /// but only while a rain is in progress. Runs as a Postfix right after
-    /// MeteorManager.spawnMeteor() finishes (mMeteors.Add(val) is the last line
-    /// of the vanilla method), which is before Unity calls Start() on the new
-    /// object, so the per-meteor fly/impact sfx never actually plays.
-    /// </summary>
-    [HarmonyPatch(typeof(MeteorManager), "spawnMeteor")]
-    internal static class MeteorManager_spawnMeteor_MutePatch
+{ 
+    public class MeteorRain : Disaster
     {
-        private static void Postfix(MeteorManager __instance)
+        private bool mFirstUpdate = true;
+
+        private bool mInProgress;
+
+        private float mTimeToNext;
+
+        private float mTime;
+
+        private float mMeteorSpawnTimer;
+
+        private long mLastLoggedSystemSecond = -1L;
+
+        private const float MeteorSpawnInterval = 0.05f;
+
+        public MeteorRain()
         {
-            if (!MeteorRainController.IsRaining) return;
+            decideNextTime();
+        }
 
-            var meteors = Traverse.Create(__instance).Field("mMeteors").GetValue<List<GameObject>>();
-            if (meteors == null || meteors.Count == 0) return;
+        public override void destroy()
+        {
+        }
 
-            GameObject meteor = meteors[meteors.Count - 1];
-            AudioSource[] sources = meteor.GetComponentsInChildren<AudioSource>(true);
-            for (int i = 0; i < sources.Length; i++)
+        private void decideNextTime()
+        {
+            mTimeToNext = Random.Range(Main.settings.MinimumDurationBetweenMeteorRains, Main.settings.MaximumDurationBetweenMeteorRains) * 2;
+            if (PlanetManager.getCurrentPlanet().getMeteorRisk() == Planet.Quantity.Low)
             {
-                sources[i].mute = true;
+                mTimeToNext *= 2f;
             }
-        }
-    }
-
-    /// <summary>
-    /// Drives a timed meteor rain: spawns many meteors scattered across the map
-    /// over `duration` seconds, and plays a single looping ambience clip instead
-    /// of dozens of overlapping per-meteor sfx.
-    /// </summary>
-    public class MeteorRainController : MonoBehaviour, ICustomScheduledDisaster
-    {
-        public const string DisasterId = "meteor-rain";
-
-        public static bool IsRaining { get; private set; }
-
-        // Matches the radius the vanilla "no target" spawn branch uses, so the
-        // scatter covers the same full-map area the base game already spawns in.
-        private const float ScatterRadius = 700f;
-
-        private static MeteorRainController _instance;
-
-        public string Id { get { return DisasterId; } }
-        public bool IsInProgress { get { return IsRaining; } }
-        public float MinScheduleDelay { get { return 180f; } }
-        public float MaxScheduleDelay { get { return 420f; } }
-
-        public static MeteorRainController GetOrCreate()
-        {
-            if (_instance == null)
+            GameplayModifier gameplayModifier = Singleton<ChallengeManager>.getInstance().getGameplayModifier(GameplayModifierType.DisasterFrequency);
+            if (gameplayModifier != null)
             {
-                GameObject go = new GameObject("MeteorRainController");
-                UnityEngine.Object.DontDestroyOnLoad(go);
-                _instance = go.AddComponent<MeteorRainController>();
-            }
-            return _instance;
-        }
-
-        /// <param name="duration">Total length of the rain, in seconds.</param>
-        /// <param name="minInterval">Minimum seconds between spawns.</param>
-        /// <param name="maxInterval">Maximum seconds between spawns.</param>
-        public bool StartRain(float duration = 30f, float minInterval = 0.015f, float maxInterval = 0.045f)
-        {
-            if (IsRaining)
-            {
-                Debug.Log("[MeteorRain] Rain already in progress, ignoring.");
-                return false;
-            }
-            StartCoroutine(RainRoutine(duration, minInterval, maxInterval));
-            return true;
-        }
-
-        public bool TryStart()
-        {
-            return StartRain();
-        }
-
-        // Keeps the tense combat/hazard BGM going for the whole rain, the same
-        // way Sandstorm.update() pokes MusicManager every frame it's in progress.
-        public void UpdateInProgress(float timeStep)
-        {
-            if (IsRaining)
-            {
-                Singleton<MusicManager>.getInstance().onTension();
+                mTimeToNext *= 1f / Mathf.Clamp(gameplayModifier.getFloat(), 0.1f, 100f);
             }
         }
 
-        private IEnumerator RainRoutine(float duration, float minInterval, float maxInterval)
+        public override void onTimeScaleChanged(float timeScale, bool paused)
         {
-            IsRaining = true;
+        }
 
-            // One-shot hazard notification, mirroring Sandstorm.onStart()'s
-            // "message_sandstorm_now" call. Swap the string for StringList.get("your_key")
-            // if you add a proper localization entry, and pick a real icon from
-            // ResourceList.StaticIcons (there's no meteor-storm icon in vanilla,
-            // so reuse one that fits, e.g. MessageSandstorm, or supply your own).
-            Singleton<MessageLog>.getInstance().addMessage(new Message(
-                "A meteor storm is approaching!",
-                ResourceList.StaticIcons.MessageSandstorm,
-                1));
-
-            MeteorManager manager = Singleton<MeteorManager>.getInstance();
-            Vector3 center = Singleton<TerrainGenerator>.getInstance().getCenter();
-
-            float elapsed = 0f;
-            while (elapsed < duration)
+        public override void update(float timeStep)
+        {
+            if (ModBase.ModEntry != null)
             {
-                float wait = UnityEngine.Random.Range(minInterval, maxInterval);
-                yield return new WaitForSeconds(wait);
-                elapsed += wait;
-
-                Vector3 target = center + new Vector3(
-                    UnityEngine.Random.Range(-ScatterRadius, ScatterRadius),
-                    0f,
-                    UnityEngine.Random.Range(-ScatterRadius, ScatterRadius));
-
-                manager.spawnMeteor(target);
+                DateTime now = DateTime.Now;
+                long currentSystemSecond = now.Ticks / 10000000L;
+                if (currentSystemSecond != mLastLoggedSystemSecond)
+                {
+                    ModBase.ModEntry.Logger.Log($"[{now:HH:mm:ss}] MeteorRain.update timeStep={timeStep:F4}, mTime={mTime:F4}, mTimeToNext={mTimeToNext:F4}");
+                    mLastLoggedSystemSecond = currentSystemSecond;
+                }
             }
 
-            IsRaining = false;
+            if (PlanetManager.getCurrentPlanet().getMeteorRisk() != 0)
+            {
+                if (mInProgress)
+                {
+                    Singleton<MusicManager>.getInstance().onTension();
+                    if (mFirstUpdate)
+                    {
+                        onStart();
+                    }
+                    mTime += timeStep;
+                    mMeteorSpawnTimer += timeStep;
+                    while (mMeteorSpawnTimer >= MeteorSpawnInterval)
+                    {
+                        Singleton<MeteorManager>.getInstance().spawnMeteor();
+                        mMeteorSpawnTimer -= MeteorSpawnInterval;
+                    }
+                    if (mTime > Main.settings.MeteorRainDuration * 2)
+                    {
+                        mInProgress = false;
+                        onEnd();
+                    }
+                }
+                else
+                {
+                    updateDetection(mTimeToNext, timeStep);
+                    mTimeToNext -= timeStep;
+                    if (mTimeToNext < 0f)
+                    {
+                        trigger();
+                        decideNextTime();
+                    }
+                }
+            }
+            mFirstUpdate = false;
+        }
+
+        private void updateDetection(float timeLeft, float timeStep)
+        {
+            if (timeLeft > 300f && timeLeft - timeStep <= 300f && Random.value <= Singleton<Colony>.getInstance().getDisasterInterceptionChance())
+            {
+                Singleton<MessageLog>.getInstance().addMessage(new Message("Meteor rain detected", TypeList<ModuleType, ModuleTypeList>.find<ModuleTypeTelescope>().getIcon(), 4));
+            }
+            if (timeLeft > 120f && timeLeft - timeStep <= 120f && Random.value <= Singleton<Colony>.getInstance().getDisasterInterceptionChance())
+            {
+                Singleton<MessageLog>.getInstance().addMessage(new Message("Meteor rain incoming", TypeList<ModuleType, ModuleTypeList>.find<ModuleTypeTelescope>().getIcon(), 4));
+            }
+        }
+
+        public override bool isInProgress()
+        {
+            return mInProgress;
+        }
+
+        private void onStart()
+        {
+            Singleton<TimeManager>.getInstance().setNormalSpeed();
+            Singleton<MessageLog>.getInstance().addMessage(new Message("Meteor rain now", ResourceList.StaticIcons.Meteor, 1));
+            Singleton<EnvironmentManager>.getInstance().refreshAmbientSound();
+        }
+
+        private void onEnd()
+        {
+            Singleton<EnvironmentManager>.getInstance().refreshAmbientSound();
+        }
+
+        public override void trigger()
+        {
+            mTime = 0f;
+            mMeteorSpawnTimer = 0f;
+            mInProgress = true;
+            onStart();
+        }
+
+        public void serialize(XmlNode rootNode, string name)
+        {
+            XmlNode parent = Serialization.createNode(rootNode, name);
+            Serialization.serializeBool(parent, "meteor-rain-in-progress", mInProgress);
+            Serialization.serializeFloat(parent, "time-to-next-meteor-rain", mTimeToNext);
+            Serialization.serializeFloat(parent, "time", mTime);
+        }
+
+        public void deserialize(XmlNode node)
+        {
+            if (PlanetManager.getCurrentPlanet().getMeteorRisk() != 0 && node != null)
+            {
+                mInProgress = Serialization.deserializeBool(node["meteor-rain-in-progress"]);
+                mTimeToNext = Serialization.deserializeFloat(node["time-to-next-meteor-rain"]);
+                mTime = Serialization.deserializeFloat(node["time"]);
+                mMeteorSpawnTimer = mInProgress ? mTime % MeteorSpawnInterval : 0f;
+            }
+        }
+
+        public override float getIntensity()
+        {
+            return 0;
         }
     }
 }

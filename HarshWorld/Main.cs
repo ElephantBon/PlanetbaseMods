@@ -23,12 +23,14 @@ namespace HarshWorld
 
         public override void OnUpdate(ModEntry modEntry, float timeStep)
         {
-            CustomDisasterManager manager = CustomDisasterManager.GetOrCreate();
-            manager.Tick(timeStep);
+            if (GetGameStateGame() == null)
+                return;
+
+            CustomDisasterManager.getInstance().update(timeStep);
 
             if(Input.GetKeyUp(settings.KeyTest))
             {
-                manager.TryTrigger(MeteorRainController.DisasterId);
+                CustomDisasterManager.getInstance().getMeteorRain().trigger();
             }
         }
 
