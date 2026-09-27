@@ -35,7 +35,7 @@ namespace HarshWorld
 
         private void decideNextTime()
         {
-            mTimeToNext = Random.Range(Main.settings.MinimumDurationBetweenMeteorRains, Main.settings.MaximumDurationBetweenMeteorRains) * 2;
+            mTimeToNext = Random.Range(HarshWorld.settings.MinimumDurationBetweenMeteorRains, HarshWorld.settings.MaximumDurationBetweenMeteorRains) * HarshWorld.RealTimeFactor;
             if (PlanetManager.getCurrentPlanet().getMeteorRisk() == Planet.Quantity.Low)
             {
                 mTimeToNext *= 2f;
@@ -80,7 +80,7 @@ namespace HarshWorld
                         Singleton<MeteorManager>.getInstance().spawnMeteor();
                         mMeteorSpawnTimer -= MeteorSpawnInterval;
                     }
-                    if (mTime > Main.settings.MeteorRainDuration * 2)
+                    if (mTime > HarshWorld.settings.MeteorRainDuration * HarshWorld.RealTimeFactor)
                     {
                         mInProgress = false;
                         onEnd();
@@ -131,6 +131,11 @@ namespace HarshWorld
 
         public override void trigger()
         {
+            if (mInProgress)
+            {
+                return;
+            }
+
             mTime = 0f;
             mMeteorSpawnTimer = 0f;
             mInProgress = true;

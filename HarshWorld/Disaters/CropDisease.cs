@@ -36,7 +36,7 @@ namespace HarshWorld
 
         private void decideNextTime()
         {
-            mTimeToNext = Random.Range(Main.settings.MinimumDurationBetweenCropDiseases, Main.settings.MaximumDurationBetweenCropDiseases) * 2;
+            mTimeToNext = Random.Range(HarshWorld.settings.MinimumDurationBetweenCropDiseases, HarshWorld.settings.MaximumDurationBetweenCropDiseases) * HarshWorld.RealTimeFactor;
         }
 
         public override void onTimeScaleChanged(float timeScale, bool paused)
@@ -55,7 +55,7 @@ namespace HarshWorld
                 var endEarly = false;
                 mTime += timeStep;
                 mTimeLastSpread += timeStep;                
-                while (mTimeLastSpread >= Main.settings.CropDiseaseSpreadInterval) 
+                while (mTimeLastSpread >= HarshWorld.settings.CropDiseaseSpreadInterval) 
                 {
                     if (!spreadDisease())
                     {
@@ -63,9 +63,9 @@ namespace HarshWorld
                         break;
                     }
                     
-                    mTimeLastSpread -= Main.settings.CropDiseaseSpreadInterval;
+                    mTimeLastSpread -= HarshWorld.settings.CropDiseaseSpreadInterval;
                 }
-                if (mTime > Main.settings.CropDiseaseDuration * 2 || endEarly)
+                if (mTime > HarshWorld.settings.CropDiseaseDuration * HarshWorld.RealTimeFactor || endEarly)
                 {
                     onEnd();
                 }
@@ -157,9 +157,9 @@ namespace HarshWorld
                 return true;
             }
 
-            ShuffleArray(plants.ToArray());
+            ArrayHelper.Shuffle(plants);
 
-            int affectedCount = Mathf.CeilToInt(plants.Count * Main.settings.CropDiseaseSpreadPercentage / 100f);
+            int affectedCount = Mathf.CeilToInt(plants.Count * HarshWorld.settings.CropDiseaseSpreadPercentage / 100f);
             affectedCount = Mathf.Clamp(affectedCount, 1, plants.Count);
 
             // Random ranged between 1 and affectedCount to make the disease spread more unpredictable
@@ -185,20 +185,6 @@ namespace HarshWorld
 
             mAffected = true;
             return true;
-        }
-
-        void ShuffleArray<T>(T[] array)
-        {
-            int n = array.Length;
-            while (n > 1)
-            {
-                n--;
-                int k = UnityEngine.Random.Range(0, n + 1);
-
-                T value = array[k];
-                array[k] = array[n];
-                array[n] = value;
-            }
         }
 
         private void updateDetection(float timeLeft, float timeStep)
@@ -239,6 +225,11 @@ namespace HarshWorld
 
         public override void trigger()
         {
+            if (mInProgress)
+            {
+                return;
+            }
+
             mTime = 0f;
             mTimeLastSpread = 0f;
             mInProgress = true;
@@ -257,6 +248,11 @@ namespace HarshWorld
 
         public void deserialize(XmlNode node)
         {
+            if (mDictVFX != null)
+            {
+                mDictVFX.Clear();
+            }
+
             if (node != null)
             {
                 mInProgress = Serialization.deserializeBool(node["crop-disease-in-progress"]);

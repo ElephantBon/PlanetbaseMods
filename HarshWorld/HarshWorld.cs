@@ -1,24 +1,27 @@
-﻿using PlanetbaseModUtilities;
+﻿using HarshWorld.Patches;
+using PlanetbaseModUtilities;
 using UnityEngine;
 using UnityModManagerNet;
 using static UnityModManagerNet.UnityModManager;
 
 namespace HarshWorld
 {
-    public class Main : ModBase
+    public class HarshWorld : ModBase
     {
         public static Settings settings;
+        public const float RealTimeFactor = 2f;
 
         public static new void Init(ModEntry modEntry)
         {
             settings = Settings.Load<Settings>(modEntry);
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
-            InitializeMod(new Main(), modEntry);
+            InitializeMod(new HarshWorld(), modEntry);
         }
 
         public override void OnInitialized(ModEntry modEntry)
         {
+            AssetManager.Init(modEntry.Path);
         }
 
         public override void OnUpdate(ModEntry modEntry, float timeStep)
@@ -28,10 +31,9 @@ namespace HarshWorld
 
             CustomDisasterManager.getInstance().update(timeStep);
 
-            if(Input.GetKeyUp(settings.KeyTest))
+            if (Input.GetKeyUp(settings.KeyDisasterMenu))
             {
-                //CustomDisasterManager.getInstance().getMeteorRain().trigger();
-                CustomDisasterManager.getInstance().getCropDisease().trigger();
+                GuiMenuSystemPatch.onOpenDisasterMenu();
             }
         }
 

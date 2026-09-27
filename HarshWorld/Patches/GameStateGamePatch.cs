@@ -15,6 +15,7 @@ namespace HarshWorld.Patches
         [HarmonyPrefix]
         public static void destroy(GameStateGame __instance)
         {
+            ConstructionPatch.ClearUserLocks();
             Singleton<CustomDisasterManager>.getInstance().destroy();
         }
     }

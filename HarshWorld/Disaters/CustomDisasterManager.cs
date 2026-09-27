@@ -5,18 +5,21 @@ namespace HarshWorld
 { 
     public class CustomDisasterManager : Singleton<CustomDisasterManager>
     {
-        private Disaster[] mDisasters = new Disaster[2];
+        private Disaster[] mDisasters = new Disaster[3];
 
-        private MeteorRain mMeteorRain;
         private CropDisease mCropDisease;
+        private FireHazard mFireHazard;
+        private MeteorRain mMeteorRain;
 
 
         public CustomDisasterManager()
         {
             mMeteorRain = new MeteorRain();
             mCropDisease = new CropDisease();
-            mDisasters[0] = mMeteorRain;
-            mDisasters[1] = mCropDisease;
+            mFireHazard = new FireHazard();
+            mDisasters[0] = mCropDisease;
+            mDisasters[1] = mFireHazard;
+            mDisasters[2] = mMeteorRain;
         }
 
         public void update(float timeStep)
@@ -41,9 +44,19 @@ namespace HarshWorld
             return mCropDisease;
         }
 
+        public FireHazard getFireHazard()
+        {
+            return mFireHazard;
+        }
+
         public MeteorRain getMeteorRain()
         {
             return mMeteorRain;
+        }
+
+        public Disaster[] getDisasters()
+        {
+            return (Disaster[])mDisasters.Clone();
         }
 
         public bool anyInProgress()
@@ -68,12 +81,14 @@ namespace HarshWorld
         public void deserialize(XmlNode rootNode)
         {
             mCropDisease.deserialize(rootNode["crop-disease"]);
+            mFireHazard.deserialize(rootNode["fire-hazard"]);
             mMeteorRain.deserialize(rootNode["meteor-rain"]);
         }
 
         public void serialize(XmlNode rootNode)
         {
             mCropDisease.serialize(rootNode, "crop-disease");
+            mFireHazard.serialize(rootNode, "fire-hazard");
             mMeteorRain.serialize(rootNode, "meteor-rain");
         }
 

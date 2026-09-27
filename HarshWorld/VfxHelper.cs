@@ -63,9 +63,6 @@ namespace HarshWorld
             container.transform.localPosition = Vector3.zero;
             container.transform.localRotation = Quaternion.identity;
 
-            VfxTag tag = container.AddComponent<VfxTag>();
-            tag.VfxType = "Disease";
-
             GameObject sporeObj = BuildDiseaseSporeLayer(container.transform);
             sporeObj.GetComponent<ParticleSystem>().Play();
 
@@ -152,9 +149,9 @@ namespace HarshWorld
             // Soft turbulence so the cloud doesn't look like it's moving in perfect straight lines
             var noise = ps.noise;
             noise.enabled = true;
-            noise.strength = 0.25f;
-            noise.frequency = 0.2f;
-            noise.scrollSpeed = 0.2f;
+            noise.strength = 0.15f;
+            noise.frequency = 0.12f;
+            noise.scrollSpeed = 0.1f;
             noise.damping = true;
             noise.quality = ParticleSystemNoiseQuality.Medium;
 
@@ -247,6 +244,10 @@ namespace HarshWorld
             var velocityOverLifetime = ps.velocityOverLifetime;
             velocityOverLifetime.enabled = true;
             velocityOverLifetime.x = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f);
+            // IMPORTANT: x, y and z must all share the same MinMaxCurve mode (here,
+            // "random between two constants"). Leaving y at its default Constant(0)
+            // mode causes a mode-mismatch exception once the module is evaluated.
+            velocityOverLifetime.y = new ParticleSystem.MinMaxCurve(0f, 0f);
             velocityOverLifetime.z = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f);
 
             // Noise for flicker/turbulence - the single biggest realism lever
@@ -472,16 +473,6 @@ namespace HarshWorld
 
             return shader;
         }
-
-        public static bool HasVfx(GameObject target, string vfxType)
-        {
-            foreach (Transform child in target.transform)
-            {
-                VfxTag t = child.GetComponent<VfxTag>();
-                if (t != null && t.VfxType == vfxType) return true;
-            }
-            return false;
-        }
     }
 
     /// <summary>
@@ -515,10 +506,6 @@ namespace HarshWorld
             float noise = Mathf.PerlinNoise(_noiseSeed, Time.time * FlickerSpeed);
             Light.intensity = BaseIntensity + (noise - 0.5f) * 2f * FlickerAmount;
         }
-    }
-    public class VfxTag : MonoBehaviour
-    {
-        public string VfxType; // "Fire", "Disease", etc.
     }
 
 }

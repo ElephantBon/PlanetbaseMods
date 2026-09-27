@@ -31,11 +31,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ArrayHelper.cs" />
+    <Compile Include="AssetManager.cs" />
+    <Compile Include="Disaters\FireHazard.cs" />
+    <Compile Include="Patches\ConstructionPatch.cs" />
+    <Compile Include="Patches\GuiMenuSystemPatch.cs" />
     <Compile Include="VfxHelper.cs" />
     <Compile Include="Disaters\CustomDisasterManager.cs" />
     <Compile Include="Disaters\CropDisease.cs" />
     <Compile Include="Disaters\MeteorRain.cs" />
-    <Compile Include="Main.cs" />
+    <Compile Include="HarshWorld.cs" />
     <Compile Include="Patches\DisasterManagerPatch.cs" />
     <Compile Include="Patches\GameStateGamePatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -45,6 +50,15 @@
     <None Include="Info.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="Assets\icon_fire.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\icon_lock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\icon_unlock.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +111,9 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Screenshots\" />
+  </ItemGroup>
   <Import Project="..\PlanetbaseModUtilities\PlanetbaseModUtilities.projitems" Label="Shared" />
   <Import Project="..\AssetUtility\AssetUtility.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
