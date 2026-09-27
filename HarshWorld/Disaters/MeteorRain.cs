@@ -22,6 +22,8 @@ namespace HarshWorld
 
         private const float MeteorSpawnInterval = 0.05f;
 
+        private bool mLoggingEnabled = false;
+
         public MeteorRain()
         {
             decideNextTime();
@@ -51,7 +53,7 @@ namespace HarshWorld
 
         public override void update(float timeStep)
         {
-            if (ModBase.ModEntry != null)
+            if (ModBase.ModEntry != null && mLoggingEnabled)
             {
                 DateTime now = DateTime.Now;
                 long currentSystemSecond = now.Ticks / 10000000L;

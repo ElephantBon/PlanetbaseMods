@@ -30,7 +30,8 @@ namespace HarshWorld
 
             if(Input.GetKeyUp(settings.KeyTest))
             {
-                CustomDisasterManager.getInstance().getMeteorRain().trigger();
+                //CustomDisasterManager.getInstance().getMeteorRain().trigger();
+                CustomDisasterManager.getInstance().getCropDisease().trigger();
             }
         }
 
