@@ -1,6 +1,7 @@
 ﻿using Planetbase;
 using PlanetbaseModUtilities;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ namespace HarshWorld
         private bool mAffected;
 
         private bool mLoggingEnabled = false;
+
+        private Dictionary<ConstructionComponent, GameObject> mDictVFX = new Dictionary<ConstructionComponent, GameObject>();
 
         public CropDisease()
         {
@@ -64,8 +67,6 @@ namespace HarshWorld
                 }
                 if (mTime > Main.settings.CropDiseaseDuration * 2 || endEarly)
                 {
-                    mInProgress = false;
-                    mAffected = false;
                     onEnd();
                 }
             }
@@ -82,17 +83,24 @@ namespace HarshWorld
             mFirstUpdate = false;
         }
 
-        private bool spreadDisease()
+        private List<ConstructionComponent> getAllPlantPads()
         {
-            log("mTime: " + mTime + ", mTimeLastSpread: " + mTimeLastSpread + ", mTimeToNext: " + mTimeToNext);
             var plants = new List<ConstructionComponent>(BuildableUtils.GetAllComponents());
             for (int i = plants.Count - 1; i >= 0; i--)
             {
-                if (!(plants[i].getComponentType() is VegetablePad))
+                var componentType = plants[i].getComponentType();
+                if (!(componentType is VegetablePad || componentType is VegetablePadStarchy || componentType is MedicinalPad))
                 {
                     plants.RemoveAt(i);
                 }
             }
+            return plants;
+        }
+
+        private bool spreadDisease()
+        {
+            log("mTime: " + mTime + ", mTimeLastSpread: " + mTimeLastSpread + ", mTimeToNext: " + mTimeToNext);
+            var plants = getAllPlantPads();
 
             if (plants.Count == 0)
             {
@@ -107,7 +115,7 @@ namespace HarshWorld
                 foreach(var plant in plants)
                 {
                     Indicator condition = CoreUtils.GetMember<ConstructionComponent, Indicator>("mConditionIndicator", plant);
-                    if (condition != null && condition.getValue() <= 0)
+                    if (condition != null && condition.getValue() <= 0.5f)
                     {
                         anyDeadPlant = true;
                         break;
@@ -121,12 +129,41 @@ namespace HarshWorld
                 }
             }
 
+            // Remove vfx for plants that are no longer affected
+            foreach(var plant in mDictVFX.Keys.ToArray())
+            {
+                Indicator condition = CoreUtils.GetMember<ConstructionComponent, Indicator>("mConditionIndicator", plant);
+                if (condition != null && condition.getValue() > 0.5f)
+                {
+                    log($"Removing disease VFX from plant {plant.getName()}.");
+                    GameObject vfx = mDictVFX[plant];
+                    if (vfx != null)
+                    {
+                        GameObject.Destroy(vfx);
+                    }
+                    mDictVFX.Remove(plant);
+                }
+            }
+
+            // Only healthy plants can be affected by the disease
+            plants = plants.Where(p =>
+            {
+                Indicator condition = CoreUtils.GetMember<ConstructionComponent, Indicator>("mConditionIndicator", p);
+                return condition != null && condition.getValue() > 0.75f;
+            }).ToList();
+
+            if(plants.Count == 0)
+            {
+                return true;
+            }
+
             ShuffleArray(plants.ToArray());
 
             int affectedCount = Mathf.CeilToInt(plants.Count * Main.settings.CropDiseaseSpreadPercentage / 100f);
             affectedCount = Mathf.Clamp(affectedCount, 1, plants.Count);
-            if(affectedCount > 0)
-                mAffected = true;
+
+            // Random ranged between 1 and affectedCount to make the disease spread more unpredictable
+            affectedCount = Random.Range(1, affectedCount + 1);
 
             log("Spreading crop disease to " + affectedCount + " plants out of " + plants.Count + " total plants.");
             for (int i = 0; i < affectedCount; i++)
@@ -138,9 +175,15 @@ namespace HarshWorld
                 if (condition != null)
                 {
                     condition.decrease(condition.getValue());
+                    if(!mDictVFX.ContainsKey(plant))
+                    {
+                        log($"Attaching disease VFX to plant {plant.getName()}.");
+                        mDictVFX[plant] = VfxHelper.AttachDiseaseVfx(plant.getGameObject());
+                    }
                 }
             }
 
+            mAffected = true;
             return true;
         }
 
@@ -169,7 +212,6 @@ namespace HarshWorld
 
         private void onStart()
         {
-
             Singleton<TimeManager>.getInstance().setNormalSpeed();
             Singleton<MessageLog>.getInstance().addMessage(new Message("Crop disease spreading", TypeList<ModuleType, ModuleTypeList>.find<ModuleTypeBioDome>().getIcon(), 1));
             Singleton<EnvironmentManager>.getInstance().refreshAmbientSound();
@@ -177,6 +219,21 @@ namespace HarshWorld
 
         private void onEnd()
         {
+            log("Crop disease disaster ended.");
+
+            mInProgress = false;
+            mAffected = false;
+
+            // Remove vfx
+            foreach(var vfx in mDictVFX.Values)
+            {
+                if (vfx != null)
+                {
+                    GameObject.Destroy(vfx);
+                }
+            }   
+            mDictVFX.Clear();
+
             Singleton<EnvironmentManager>.getInstance().refreshAmbientSound();
         }
 
