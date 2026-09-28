@@ -33,9 +33,18 @@
   <ItemGroup>
     <Compile Include="ArrayHelper.cs" />
     <Compile Include="AssetManager.cs" />
+    <Compile Include="Disaters\RogueBots.cs" />
     <Compile Include="Disaters\FireHazard.cs" />
+    <Compile Include="Disaters\RogueBot\AiRuleGoAttackColonistMelee.cs" />
+    <Compile Include="Disaters\RogueBot\InteractionCombatPatch.cs" />
+    <Compile Include="Disaters\RogueBot\RogueBotAi.cs" />
+    <Compile Include="Disaters\RogueBot\RogueConstructor.cs" />
+    <Compile Include="Disaters\RogueBot\RogueBot.cs" />
+    <Compile Include="Disaters\RogueBot\RogueDriller.cs" />
+    <Compile Include="Disaters\RogueBot\RogueCarrier.cs" />
     <Compile Include="Patches\ConstructionPatch.cs" />
     <Compile Include="Patches\GuiMenuSystemPatch.cs" />
+    <Compile Include="Disaters\RogueBot\CharacterPatch.cs" />
     <Compile Include="VfxHelper.cs" />
     <Compile Include="Disaters\CustomDisasterManager.cs" />
     <Compile Include="Disaters\CropDisease.cs" />

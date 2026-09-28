@@ -5,21 +5,24 @@ namespace HarshWorld
 { 
     public class CustomDisasterManager : Singleton<CustomDisasterManager>
     {
-        private Disaster[] mDisasters = new Disaster[3];
+        private Disaster[] mDisasters = new Disaster[4];
 
         private CropDisease mCropDisease;
         private FireHazard mFireHazard;
         private MeteorRain mMeteorRain;
+        private RogueBots mRogueBots;
 
 
         public CustomDisasterManager()
         {
-            mMeteorRain = new MeteorRain();
             mCropDisease = new CropDisease();
             mFireHazard = new FireHazard();
+            mMeteorRain = new MeteorRain();
+            mRogueBots = new RogueBots();
             mDisasters[0] = mCropDisease;
             mDisasters[1] = mFireHazard;
             mDisasters[2] = mMeteorRain;
+            mDisasters[3] = mRogueBots;
         }
 
         public void update(float timeStep)
@@ -37,21 +40,6 @@ namespace HarshWorld
             {
                 mDisasters[i].destroy();
             }
-        }
-
-        public CropDisease getCropDisease()
-        {
-            return mCropDisease;
-        }
-
-        public FireHazard getFireHazard()
-        {
-            return mFireHazard;
-        }
-
-        public MeteorRain getMeteorRain()
-        {
-            return mMeteorRain;
         }
 
         public Disaster[] getDisasters()
@@ -83,6 +71,7 @@ namespace HarshWorld
             mCropDisease.deserialize(rootNode["crop-disease"]);
             mFireHazard.deserialize(rootNode["fire-hazard"]);
             mMeteorRain.deserialize(rootNode["meteor-rain"]);
+            mRogueBots.deserialize(rootNode["rogue-bots"]);
         }
 
         public void serialize(XmlNode rootNode)
@@ -90,6 +79,7 @@ namespace HarshWorld
             mCropDisease.serialize(rootNode, "crop-disease");
             mFireHazard.serialize(rootNode, "fire-hazard");
             mMeteorRain.serialize(rootNode, "meteor-rain");
+            mRogueBots.serialize(rootNode, "rogue-bots");
         }
 
         public void onTimeScaleChanged(float timeScale, bool paused)

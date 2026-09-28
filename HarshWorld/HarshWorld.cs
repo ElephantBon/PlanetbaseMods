@@ -1,4 +1,6 @@
-﻿using HarshWorld.Patches;
+﻿using HarshWorld.Disasters.RogueBot;
+using HarshWorld.Patches;
+using Planetbase;
 using PlanetbaseModUtilities;
 using UnityEngine;
 using UnityModManagerNet;
@@ -35,6 +37,15 @@ namespace HarshWorld
             {
                 GuiMenuSystemPatch.onOpenDisasterMenu();
             }
+
+            //if (Input.GetKeyUp(settings.KeyTest))
+            //{
+            //    var selected = Selection.getSelected();
+            //    if(selected != null && selected is Bot)
+            //    {
+            //        RogueBot.goRogue(selected as Bot);
+            //    }
+            //}
         }
 
         static void OnGUI(UnityModManager.ModEntry modEntry)

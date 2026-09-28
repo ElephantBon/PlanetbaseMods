@@ -6,6 +6,7 @@ namespace HarshWorld
     public class Settings : UnityModManager.ModSettings, IDrawable
     {
         [Draw("Keybind to open disaster menu for testing")] public KeyCode KeyDisasterMenu = KeyCode.H;
+        [Draw("Keybind to test")] public KeyCode KeyTest = KeyCode.J;
         [Draw("Probability of all disasters (%)")] public float DisasterProbability = 50f;
 
         // Crop Disease Settings
@@ -32,6 +33,12 @@ namespace HarshWorld
         [Draw("Meteor Rain: Maximum duration between disaster (seconds)")] public float MaximumDurationBetweenMeteorRains = 3600f;
         [Draw("Meteor Rain: Duration of disaster (seconds)")] public float MeteorRainDuration = 15f;
 
+        // Rogue Bots Settings
+        [Draw("Rogue Bots: Enable")] public bool EnableRogueBots = true;
+        [Draw("Rogue Bots: Minimum duration between disaster (seconds)")] public float MinimumDurationBetweenRogueBots = 2400f;
+        [Draw("Rogue Bots: Maximum duration between disaster (seconds)")] public float MaximumDurationBetweenRogueBots = 3600f;
+        [Draw("Rogue Bots: Duration of disaster (seconds)")] public float RogueBotsDuration = 300f;
+        [Draw("Rogue Bots: Percentage of bots go rogue (%)")] public float RogueBotsPercentage = 100f;
 
         public override void Save(UnityModManager.ModEntry modEntry)
         {

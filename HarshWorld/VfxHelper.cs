@@ -353,6 +353,465 @@ namespace HarshWorld
         }
 
         // ---------------------------------------------------------------
+        // Blood splatter: one-shot burst of dark red droplets from a point
+        // ---------------------------------------------------------------
+        private static Material _bloodMaterial;
+        private static Texture2D _dropletTexture;
+
+        /// <summary>
+        /// Attaches a one-shot blood splatter to the specified GameObject, so the emitter
+        /// follows it (e.g. a moving character). Droplets are simulated in world space,
+        /// so they fly off and fall naturally rather than being dragged along.
+        /// 'localOffset' positions the wound relative to the target's pivot.
+        /// Destroys itself automatically after a short period.
+        /// </summary>
+        public static GameObject AttachBloodVfx(GameObject targetObject, float intensity = 1f)
+        {
+            if (targetObject == null)
+            {
+                Debug.LogWarning("VfxHelper.AttachBloodVfx: targetObject is null.");
+                return null;
+            }
+            intensity = Mathf.Max(0.1f, intensity);
+
+            GameObject container = new GameObject("Mod_BloodVFX");
+            container.transform.SetParent(targetObject.transform, false);
+
+            BuildBloodDroplets(container.transform, intensity);
+            BuildBloodMist(container.transform, intensity);
+
+            Object.Destroy(container, 1.5f);
+            return container;
+        }
+
+        private static GameObject BuildBloodDroplets(Transform parent, float intensity)
+        {
+            GameObject obj = new GameObject("BloodDroplets");
+            obj.transform.SetParent(parent, false);
+
+            ParticleSystem ps = obj.AddComponent<ParticleSystem>();
+            // AddComponent starts playing; stop first so duration can be safely changed.
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            var main = ps.main;
+            main.duration = 0.5f;
+            main.loop = false;
+            main.playOnAwake = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.5f, 1.0f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(3f * intensity, 8f * intensity);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.03f, 0.09f);
+            main.gravityModifier = 2.5f; // heavy droplets fall fast
+            main.startColor = new ParticleSystem.MinMaxGradient(
+                new Color(0.45f, 0.0f, 0.0f, 1f), new Color(0.7f, 0.02f, 0.02f, 1f));
+            main.maxParticles = 200;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            // Single burst - no continuous emission
+            var emission = ps.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 0f;
+            emission.SetBursts(new ParticleSystem.Burst[]
+            {
+            new ParticleSystem.Burst(0f, (short)Mathf.RoundToInt(35f * intensity))
+            });
+
+            // Sphere emits outward from the center in every direction
+            var shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = 0.05f; // near-point source
+
+            // Droplets shrink slightly and fade right at the end of their life
+            var sizeOverLifetime = ps.sizeOverLifetime;
+            sizeOverLifetime.enabled = true;
+            AnimationCurve sizeCurve = new AnimationCurve();
+            sizeCurve.AddKey(0f, 1f);
+            sizeCurve.AddKey(1f, 0.6f);
+            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
+
+            var colorOverLifetime = ps.colorOverLifetime;
+            colorOverLifetime.enabled = true;
+            Gradient fade = new Gradient();
+            fade.SetKeys(
+                new GradientColorKey[]
+                {
+                new GradientColorKey(Color.white, 0f),
+                new GradientColorKey(Color.white, 1f)
+                },
+                new GradientAlphaKey[]
+                {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 0.8f),
+                new GradientAlphaKey(0f, 1f)
+                }
+            );
+            colorOverLifetime.color = fade;
+
+            // Droplets hit the ground/walls and lose most of their energy (no bouncing)
+            var collision = ps.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.quality = ParticleSystemCollisionQuality.Low;
+            collision.dampen = 0.7f;
+            collision.bounce = 0.05f;
+            collision.lifetimeLoss = 0.4f;
+            collision.radiusScale = 0.5f;
+
+            // Stretched billboards turn round sprites into fast-moving streaks
+            var renderer = obj.GetComponent<ParticleSystemRenderer>();
+            if (renderer != null)
+            {
+                renderer.material = GetBloodMaterial();
+                renderer.renderMode = ParticleSystemRenderMode.Stretch;
+                renderer.velocityScale = 0.03f;
+                renderer.lengthScale = 1.5f;
+            }
+
+            ps.Play();
+            return obj;
+        }
+
+        private static GameObject BuildBloodMist(Transform parent, float intensity)
+        {
+            GameObject obj = new GameObject("BloodMist");
+            obj.transform.SetParent(parent, false);
+
+            ParticleSystem ps = obj.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            var main = ps.main;
+            main.duration = 0.3f;
+            main.loop = false;
+            main.playOnAwake = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.3f, 0.6f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.5f, 1.5f * intensity);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.25f, 0.5f);
+            main.gravityModifier = 0.2f;
+            main.startColor = new Color(0.5f, 0.02f, 0.02f, 0.35f);
+            main.maxParticles = 20;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            var emission = ps.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 0f;
+            emission.SetBursts(new ParticleSystem.Burst[]
+            {
+            new ParticleSystem.Burst(0f, (short)Mathf.RoundToInt(8f * intensity))
+            });
+
+            var shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = 0.05f;
+
+            // Soft puff that expands and fades quickly
+            var sizeOverLifetime = ps.sizeOverLifetime;
+            sizeOverLifetime.enabled = true;
+            AnimationCurve sizeCurve = new AnimationCurve();
+            sizeCurve.AddKey(0f, 0.5f);
+            sizeCurve.AddKey(1f, 1.5f);
+            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
+
+            var colorOverLifetime = ps.colorOverLifetime;
+            colorOverLifetime.enabled = true;
+            Gradient fade = new Gradient();
+            fade.SetKeys(
+                new GradientColorKey[]
+                {
+                new GradientColorKey(Color.white, 0f),
+                new GradientColorKey(Color.white, 1f)
+                },
+                new GradientAlphaKey[]
+                {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(0f, 1f)
+                }
+            );
+            colorOverLifetime.color = fade;
+
+            var renderer = obj.GetComponent<ParticleSystemRenderer>();
+            if (renderer != null)
+            {
+                renderer.material = GetSmokeMaterial(); // soft alpha-blended puff
+                renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            }
+
+            ps.Play();
+            return obj;
+        }
+
+        /// <summary>
+        /// Round droplet texture with a much crisper edge than the soft puff texture,
+        /// so blood reads as liquid rather than mist.
+        /// </summary>
+        private static Texture2D GetDropletTexture()
+        {
+            if (_dropletTexture != null)
+            {
+                return _dropletTexture;
+            }
+
+            const int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.wrapMode = TextureWrapMode.Clamp;
+
+            Vector2 center = new Vector2(size / 2f, size / 2f);
+            float maxDist = size / 2f;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), center) / maxDist;
+                    // Solid core, narrow soft rim (only the outer ~20% fades)
+                    float alpha = Mathf.Clamp01((1f - dist) / 0.2f);
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+                }
+            }
+
+            tex.Apply();
+            _dropletTexture = tex;
+            return _dropletTexture;
+        }
+
+        private static Material GetBloodMaterial()
+        {
+            if (_bloodMaterial == null)
+            {
+                Shader shader = FindBestParticleShader(additive: false);
+                _bloodMaterial = shader != null ? new Material(shader) : null;
+                if (_bloodMaterial != null)
+                {
+                    _bloodMaterial.mainTexture = GetDropletTexture();
+                }
+            }
+            return _bloodMaterial;
+        }
+
+        // ---------------------------------------------------------------
+        // Welding sparks: continuous bright streaking sparks + flash + flicker light
+        // ---------------------------------------------------------------
+        private static Material _sparkMaterial;
+
+        /// <summary>
+        /// Attaches a continuous welding-spark effect to the specified GameObject:
+        /// fast, bright, bouncing sparks, a pulsing white-blue flash at the weld point,
+        /// and a rapidly flickering light. The sparks spray upward from the object's
+        /// local up axis. Returns the container so it can be Destroy()'d to stop welding.
+        /// 'localOffset' positions the weld point relative to the target's pivot.
+        /// </summary>
+        public static GameObject AttachSparksVfx(GameObject targetObject)
+        {
+            if (targetObject == null)
+            {
+                Debug.LogWarning("VfxHelper.AttachWeldingSparksVfx: targetObject is null.");
+                return null;
+            }
+
+            GameObject container = new GameObject("Mod_WeldingVFX");
+            container.transform.SetParent(targetObject.transform, false);
+            container.transform.localPosition = new Vector3(0f, 1.0f, 0f);
+            container.transform.localRotation = Quaternion.identity;
+
+            BuildWeldingSparks(container.transform);
+            BuildWeldingFlash(container.transform);
+
+            // Harsh, fast, blue-white flicker (reuses the Perlin flicker component)
+            GameObject lightObj = new GameObject("WeldLight");
+            lightObj.transform.SetParent(container.transform, false);
+            lightObj.transform.localPosition = new Vector3(0f, 0.15f, 0f);
+
+            Light light = lightObj.AddComponent<Light>();
+            light.type = LightType.Point;
+            light.color = new Color(0.8f, 0.9f, 1f);
+            light.range = 4f;
+            light.intensity = 3f;
+            light.shadows = LightShadows.None;
+
+            FireLightFlicker flicker = container.AddComponent<FireLightFlicker>();
+            flicker.Light = light;
+            flicker.BaseIntensity = 3f;
+            flicker.FlickerAmount = 2.5f;
+            flicker.FlickerSpeed = 25f;
+
+            Object.Destroy(container, 1.5f);
+            return container;
+        }
+
+        private static GameObject BuildWeldingSparks(Transform parent)
+        {
+            GameObject obj = new GameObject("WeldSparks");
+            obj.transform.SetParent(parent, false);
+            obj.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f); // cone points along local up
+
+            ParticleSystem ps = obj.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            var main = ps.main;
+            main.duration = 0.25f;
+            main.loop = true;
+            main.playOnAwake = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.3f, 0.8f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(3f, 7f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.02f, 0.05f);
+            main.gravityModifier = 1.5f;
+            main.startColor = new ParticleSystem.MinMaxGradient(
+                new Color(1f, 1f, 0.85f), new Color(1f, 0.85f, 0.4f));
+            main.maxParticles = 300;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            // Steady stream plus a small burst every cycle so it crackles in pulses
+            var emission = ps.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 25f;
+            emission.SetBursts(new ParticleSystem.Burst[]
+            {
+            new ParticleSystem.Burst(0f, (short)12)
+            });
+
+            var shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 50f;
+            shape.radius = 0.02f; // near-point source
+
+            // White-hot -> yellow -> orange -> red as the spark cools, fading at the end
+            var colorOverLifetime = ps.colorOverLifetime;
+            colorOverLifetime.enabled = true;
+            Gradient sparkGradient = new Gradient();
+            sparkGradient.SetKeys(
+                new GradientColorKey[]
+                {
+                new GradientColorKey(new Color(1f, 1f, 0.9f), 0f),
+                new GradientColorKey(new Color(1f, 0.85f, 0.3f), 0.3f),
+                new GradientColorKey(new Color(1f, 0.4f, 0.05f), 0.7f),
+                new GradientColorKey(new Color(0.6f, 0.1f, 0f), 1f)
+                },
+                new GradientAlphaKey[]
+                {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 0.6f),
+                new GradientAlphaKey(0f, 1f)
+                }
+            );
+            colorOverLifetime.color = sparkGradient;
+
+            // Sparks shrink to nothing as they burn out
+            var sizeOverLifetime = ps.sizeOverLifetime;
+            sizeOverLifetime.enabled = true;
+            AnimationCurve sizeCurve = new AnimationCurve();
+            sizeCurve.AddKey(0f, 1f);
+            sizeCurve.AddKey(1f, 0f);
+            sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
+
+            // Slight jitter so paths aren't perfectly ballistic
+            var noise = ps.noise;
+            noise.enabled = true;
+            noise.strength = 0.3f;
+            noise.frequency = 2f;
+            noise.scrollSpeed = 1f;
+            noise.damping = false;
+            noise.quality = ParticleSystemNoiseQuality.Low;
+
+            // Sparks skitter and bounce off the floor
+            var collision = ps.collision;
+            collision.enabled = true;
+            collision.type = ParticleSystemCollisionType.World;
+            collision.mode = ParticleSystemCollisionMode.Collision3D;
+            collision.quality = ParticleSystemCollisionQuality.Low;
+            collision.dampen = 0.3f;
+            collision.bounce = 0.4f;
+            collision.lifetimeLoss = 0.2f;
+            collision.radiusScale = 0.5f;
+
+            // Stretched additive billboards read as bright streaks
+            var renderer = obj.GetComponent<ParticleSystemRenderer>();
+            if (renderer != null)
+            {
+                renderer.material = GetSparkMaterial();
+                renderer.renderMode = ParticleSystemRenderMode.Stretch;
+                renderer.velocityScale = 0.04f;
+                renderer.lengthScale = 2f;
+            }
+
+            ps.Play();
+            return obj;
+        }
+
+        private static GameObject BuildWeldingFlash(Transform parent)
+        {
+            GameObject obj = new GameObject("WeldFlash");
+            obj.transform.SetParent(parent, false);
+
+            ParticleSystem ps = obj.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            // Rapid stream of short-lived, stationary glowing blobs = pulsing arc glare
+            var main = ps.main;
+            main.duration = 1f;
+            main.loop = true;
+            main.playOnAwake = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.05f, 0.15f);
+            main.startSpeed = 0f;
+            main.startSize = new ParticleSystem.MinMaxCurve(0.25f, 0.5f);
+            main.startColor = new ParticleSystem.MinMaxGradient(
+                new Color(0.8f, 0.9f, 1f, 0.9f), new Color(1f, 1f, 1f, 0.9f));
+            main.maxParticles = 20;
+            main.simulationSpace = ParticleSystemSimulationSpace.Local;
+
+            var emission = ps.emission;
+            emission.enabled = true;
+            emission.rateOverTime = 30f;
+
+            var shape = ps.shape;
+            shape.enabled = true;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radius = 0.02f;
+
+            var colorOverLifetime = ps.colorOverLifetime;
+            colorOverLifetime.enabled = true;
+            Gradient fade = new Gradient();
+            fade.SetKeys(
+                new GradientColorKey[]
+                {
+                new GradientColorKey(Color.white, 0f),
+                new GradientColorKey(new Color(0.6f, 0.75f, 1f), 1f)
+                },
+                new GradientAlphaKey[]
+                {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(0f, 1f)
+                }
+            );
+            colorOverLifetime.color = fade;
+
+            var renderer = obj.GetComponent<ParticleSystemRenderer>();
+            if (renderer != null)
+            {
+                renderer.material = GetFlameMaterial(); // additive + soft round texture = glow
+                renderer.renderMode = ParticleSystemRenderMode.Billboard;
+            }
+
+            ps.Play();
+            return obj;
+        }
+
+        private static Material GetSparkMaterial()
+        {
+            if (_sparkMaterial == null)
+            {
+                Shader shader = FindBestParticleShader(additive: true);
+                _sparkMaterial = shader != null ? new Material(shader) : null;
+                if (_sparkMaterial != null)
+                {
+                    _sparkMaterial.mainTexture = GetDropletTexture(); // crisp round core for sharp streaks
+                }
+            }
+            return _sparkMaterial;
+        }
+
+        // ---------------------------------------------------------------
         // Flickering point light to sell the "fire casts light" effect
         // ---------------------------------------------------------------
         private static Light BuildFlickerLight(Transform parent)
@@ -507,5 +966,4 @@ namespace HarshWorld
             Light.intensity = BaseIntensity + (noise - 0.5f) * 2f * FlickerAmount;
         }
     }
-
 }
