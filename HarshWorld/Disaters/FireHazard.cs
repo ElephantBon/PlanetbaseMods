@@ -102,7 +102,10 @@ namespace HarshWorld
                 mTimeToNext -= timeStep;
                 if (mTimeToNext < 0f)
                 {
-                    trigger();
+                    if(HarshWorld.settings.EnableFireHazard && Random.Range(0f, 100f) < HarshWorld.settings.DisasterProbability)
+                    { 
+                        trigger();
+                    }
                     decideNextTime();
                 }
             }
