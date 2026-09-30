@@ -34,7 +34,7 @@ namespace NuclearPlant.Patches
                 mProductionProgressIndicator.setValue(0f);
                 if(findValidProductionPosition(__instance, out var dropPosition)) {
                     bool canMineUraniumOre;
-                    if(Main.settings.uraniumOreRequiresTech) {
+                    if(NuclearPlant.settings.uraniumOreRequiresTech) {
                         // Require tech to find uranium ore
                         var tech = TypeList<Tech, TechList>.find<TechNuclearPlant>();
                         canMineUraniumOre = Singleton<TechManager>.getInstance().isAcquired(tech);
@@ -42,7 +42,7 @@ namespace NuclearPlant.Patches
                     else {
                         canMineUraniumOre = true;
                     }
-                    var resourceIType = (canMineUraniumOre && Random.Range(0.0f, 1.0f) <= Main.settings.ProbabilityUraniumOre ?
+                    var resourceIType = (canMineUraniumOre && Random.Range(0.0f, 1.0f) <= NuclearPlant.settings.ProbabilityUraniumOrePercentage / 100f ?
                         ResourceTypeList.find<UraniumOre>() : ResourceTypeList.OreInstance);
                     Resource resource = Resource.create(resourceIType, dropPosition, Location.Exterior);
                     resource.setRotation(__instance.getTransform().rotation);

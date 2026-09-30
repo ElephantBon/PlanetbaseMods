@@ -29,7 +29,7 @@ namespace NuclearPlant
             IconTechNuclearPlant = AssetUtils.LoadTexture(Path.Combine(modPath, @"Assets\icon_tech_nulear_plant.png"));
 
             // Prefabs
-            ModelNuclearCore = AssetUtils.LoadGameObject(Path.Combine(Main.ModEntry.Path, "Assets\\nuclearplant.assetbundle"), "NuclearCore");
+            ModelNuclearCore = AssetUtils.LoadGameObject(Path.Combine(NuclearPlant.ModEntry.Path, "Assets\\nuclearplant.assetbundle"), "NuclearCore");
         }
     }
 }

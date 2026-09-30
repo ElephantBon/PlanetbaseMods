@@ -52,13 +52,16 @@ namespace NuclearPlant.Patches
 
             if(modulePlant.hasWater()) {
                 if(__instance.anyInteractions())
-                    mConditionIndicator.increase(updateValue);
+                    mConditionIndicator.increase(updateValue * NuclearPlant.settings.NuclearPlantMaintainFactor);
                 else
-                    mConditionIndicator.decrease(updateValue);
+                    mConditionIndicator.decrease(updateValue * NuclearPlant.settings.NuclearPlantDegradeFactor);
             }
             else {
                 // Decrease more on water shortage
-                mConditionIndicator.decrease(updateValue * 5);
+                if(__instance.anyInteractions())
+                    mConditionIndicator.decrease(updateValue * NuclearPlant.settings.NuclearPlantInsufficientDegradeFactor / 2); // Degrade less if maintained by engineer   
+                else
+                    mConditionIndicator.decrease(updateValue * NuclearPlant.settings.NuclearPlantInsufficientDegradeFactor);
             }
 
             if(mConditionIndicator.getValue() <= 0.1f)  // Don't set too low or the module will disable

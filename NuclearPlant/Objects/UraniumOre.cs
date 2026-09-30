@@ -11,7 +11,7 @@ namespace NuclearPlant.Objects
         public UraniumOre()
         {
             mStatsColor = new Color32(0, 255, 0, byte.MaxValue);
-            mValue = Main.settings.ValueUraniumOre;
+            mValue = NuclearPlant.settings.ValueUraniumOre;
             mMerchantCategory = MerchantCategory.RawMaterial;
             mSize = ResourceType.LargeResourceSize;
 

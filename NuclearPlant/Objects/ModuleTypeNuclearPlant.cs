@@ -15,7 +15,7 @@ namespace NuclearPlant.Objects
             mMinSize = 1;
             mMaxSize = 1;
             mLayoutType = LayoutType.Circular;
-            mCondicionDecayTime = 24000;
+            mCondicionDecayTime = NuclearPlant.settings.NuclearPlantConditionDecayTime;
 
             mRequiredStructure.set<ModuleTypeFactory>();
 
@@ -35,6 +35,7 @@ namespace NuclearPlant.Objects
             mModels[1] = ResourceUtil.loadPrefab("Prefabs/Modules/PrefabFactory2");//ResourceUtil.loadPrefab("Prefabs/Modules/PrefabOxygenGenerator2");
             mModels[1].setColor(Color.red);
             mName = Name;
+            mFlags |= FlagPriorityControls;
 
             initStrings();
         }
@@ -97,10 +98,10 @@ namespace NuclearPlant.Objects
                     if(distToConstruction <= radius1) {
                         // Destroy module
                         if(!(construction is Connection))
-                            Main.destroyConstructions.Add(construction);
+                            NuclearPlant.destroyConstructions.Add(construction);
 
                         // Particle
-                        Main.ModuleExplodeParticle(construction);
+                        NuclearPlant.ModuleExplodeParticle(construction);
 
                         // Kill people inside
                         foreach(var character in mCharacters)
@@ -115,13 +116,13 @@ namespace NuclearPlant.Objects
                         var mConditionIndicator = CoreUtils.GetMember<Construction, Indicator>("mConditionIndicator", construction);
                         mConditionIndicator.decrease(1.0f);
 
-                        Main.damageConstructions.Add(construction);
-                        Main.ModuleExplodeParticle(construction);
+                        NuclearPlant.damageConstructions.Add(construction);
+                        NuclearPlant.ModuleExplodeParticle(construction);
 
                         // Register destroying components
                         var components = construction.getComponents();
                         foreach(var component in components)
-                            if(Random.Range(0.0f, 1.0f) >= Main.settings.ProbabilityDropsExplosion)
+                            if(Random.Range(0f, 100f) >= NuclearPlant.settings.ProbabilityDropsExplosionPercentage)
                                 destroyComponents.Add(component);
                     }
                 }
@@ -138,7 +139,7 @@ namespace NuclearPlant.Objects
                         int num = 0;
                         foreach(ResourceAmount item in resourceAmounts) {
                             for(int i = 0; i < item.getAmount(); i++) {
-                                if(Random.Range(0.0f, 1.0f) < Main.settings.ProbabilityDropsExplosion) {
+                                if(Random.Range(0f, 100f) < NuclearPlant.settings.ProbabilityDropsExplosionPercentage) {
                                     Vector3 vector = new Vector3((float)(num % 2) - 0.5f, 0f, (float)(num / 2 % 2) - 0.5f);
                                     Resource resource = Resource.create(item.getResourceType(), component.getPosition() + vector, Location.Interior);
                                     resource.setRotation(component.getTransform().rotation);
@@ -155,7 +156,7 @@ namespace NuclearPlant.Objects
                     component.destroy();
                 }
 
-                Main.startDeletingConstructions = true;
+                NuclearPlant.startDeletingConstructions = true;
             }
         }
     }

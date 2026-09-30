@@ -16,7 +16,7 @@ namespace NuclearPlant.Patches
         public static void Postfix(Tech tech)
         {
             if(tech is TechNuclearPlant)
-                Main.UpdateGuiNuclearPlant();
+                NuclearPlant.UpdateGuiNuclearPlant();
         }
     }
 }

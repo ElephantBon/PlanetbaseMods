@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace NuclearPlant
 {
 
-    public class Main : ModBase
+    public class NuclearPlant : ModBase
     {
         public static Settings settings;
 
@@ -29,7 +29,7 @@ namespace NuclearPlant
             settings = Settings.Load<Settings>(modEntry);
             modEntry.OnGUI = OnGUI;
             modEntry.OnSaveGUI = OnSaveGUI;
-            InitializeMod(new Main(), modEntry);
+            InitializeMod(new NuclearPlant(), modEntry);
         }
 
         static void OnGUI(UnityModManager.ModEntry modEntry)
@@ -169,7 +169,7 @@ namespace NuclearPlant
 
             foreach(ResourceAmount item in resourceAmounts) {
                 for(int i = 0; i < item.getAmount(); i++) {
-                    if(Random.Range(0.0f, 1.0f) < Main.settings.ProbabilityDropsExplosion) {
+                    if(Random.Range(0f, 100f) < NuclearPlant.settings.ProbabilityDropsExplosionPercentage) {
                         Resource resource = Resource.create(item.getResourceType(), construction.getPosition() + MathUtil.randFlatVector(construction.getRadius()), Location.Exterior);
                         resource.drop(Resource.State.Idle);
 
@@ -201,7 +201,7 @@ namespace NuclearPlant
 
                 for(int i = resources.Count - 1; i >= 0; i--) {
                     var resource = resources[i];
-                    if(Random.Range(0.0f, 1.0f) >= Main.settings.ProbabilityDropsExplosion)
+                    if(Random.Range(0f, 100f) >= NuclearPlant.settings.ProbabilityDropsExplosionPercentage)
                         resource.destroy();
                     else {
                         var mConditionIndicator = CoreUtils.GetMember<Resource, Indicator>("mConditionIndicator", resource);

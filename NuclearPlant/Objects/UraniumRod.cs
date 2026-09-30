@@ -11,7 +11,7 @@ namespace NuclearPlant.Objects
         public UraniumRod()
         {
             mStatsColor = new Color32(128, 255, 0, byte.MaxValue);
-            mValue = Main.settings.ValueUraniumRod;
+            mValue = NuclearPlant.settings.ValueUraniumRod;
             mMerchantCategory = MerchantCategory.Electronics;
             mSize = ResourceType.LargeResourceSize;
 
